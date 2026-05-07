@@ -153,7 +153,7 @@ public class T4DrawingPanel extends JPanel {
     public void drawQuartTile(Graphics g, int x, int y, int tileIndex, int zoom) {
         int quartTuileIndex = tileIndex*6;
         for(int i=0; i<6; i++)
-            drawQuartTileLine(g, x, y+i*zoom*pixelSize, quartTuiles[quartTuileIndex+i], zoom);
+            drawQuartTileLine(g, x, y+i*zoom*pixelSize, quartTuiles[quartTuileIndex+i], i%2 == 0, zoom);
     }
 
     /*
@@ -173,15 +173,21 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
 
     Color[] invertedColors = {Color.WHITE, Color.CYAN, Color.MAGENTA, Color.BLUE, Color.YELLOW, Color.GREEN, Color.RED, Color.BLACK};
 
-    private void switchColor(Graphics g, int y, boolean inverted, int zoom) {
+    private void switchColor(Graphics g, boolean bit, boolean pair, boolean inverted, int zoom) {
         if (inverted) {
-            if ((y/pixelSize*zoom)%2==0) {
-                g.setColor(invertedColors[couleurPair]);
+            if (pair) {
+                if (bit)
+                    g.setColor(invertedColors[couleurPair]);
+                else
+                    g.setColor(Color.WHITE);
             } else {
-                g.setColor(invertedColors[couleurImpair]);
+                if (bit)
+                    g.setColor(invertedColors[couleurImpair]);
+                else
+                    g.setColor(Color.WHITE);
             }
         } else {
-            if ((y/pixelSize*zoom)%2==0) {
+            if (pair) {
                 g.setColor(colors[couleurPair]);
             } else {
                 g.setColor(colors[couleurImpair]);
@@ -191,7 +197,7 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
 
 
 
-    private void drawQuartTileLine(Graphics g, int x, int y, int val, int zoom) {
+    private void drawQuartTileLine(Graphics g, int x, int y, int val, boolean pair, int zoom) {
         // Ensure we start in paint mode.
         g.setPaintMode();
 
@@ -210,20 +216,49 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
         // bit 1
         boolean bit1 = (val & 0x1) > 0;
 
-        switchColor(g, y, inverse, zoom);
 
-        if (bit6)
-            g.fillRect(x, y, pixelSize*zoom, pixelSize*zoom);
-        if (bit5)
+        if (bit6) {
+            switchColor(g, bit6, pair, inverse, zoom);
+            g.fillRect(x, y, pixelSize * zoom, pixelSize * zoom);
+        } else if (inverse) {
+            switchColor(g, bit6, pair, inverse, zoom);
+            g.fillRect(x, y, pixelSize * zoom, pixelSize * zoom);
+        }
+        if (bit5) {
+            switchColor(g, bit5, pair, inverse, zoom);
             g.fillRect(x+pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
-        if (bit4)
+        } else if (inverse) {
+            switchColor(g, bit5, pair, inverse, zoom);
+            g.fillRect(x+pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+        }
+        if (bit4) {
+            switchColor(g, bit4, pair, inverse, zoom);
             g.fillRect(x+2*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
-        if (bit3)
+        } else if (inverse) {
+            switchColor(g, bit4, pair, inverse, zoom);
+            g.fillRect(x+2*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+        }
+        if (bit3) {
+            switchColor(g, bit3, pair, inverse, zoom);
             g.fillRect(x+3*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
-        if (bit2)
+        } else if (inverse) {
+            switchColor(g, bit3, pair, inverse, zoom);
+            g.fillRect(x+3*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+        }
+        if (bit2) {
+            switchColor(g, bit2, pair, inverse, zoom);
             g.fillRect(x+4*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
-        if (bit1)
+        } else if (inverse) {
+            switchColor(g, bit2, pair, inverse, zoom);
+            g.fillRect(x+4*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+        }
+        if (bit1){
+            switchColor(g, bit1, pair, inverse, zoom);
             g.fillRect(x+5*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+        } else if (inverse) {
+            switchColor(g, bit1, pair, inverse, zoom);
+            g.fillRect(x+5*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+        }
     }
 
 

@@ -26,7 +26,7 @@ public class T4TileAssemblerPanel  extends JPanel {
         this.drawingPanel = drawingPanel;
         // set a preferred size for the custom panel.
         setPreferredSize(new Dimension(CELL_SIZE*8+10, CELL_SIZE*16+10));
-        setBackground(Color.GRAY);
+        setBackground(Color.BLACK);
     }
 
     public void mousePressed(MouseEvent evt) {
