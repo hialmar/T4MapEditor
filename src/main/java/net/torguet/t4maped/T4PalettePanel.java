@@ -47,7 +47,7 @@ public class T4PalettePanel extends JPanel {
         int j = 0;
         int i = 0;
         for(; i< nbTuiles; i++) {
-            drawingPanel.drawTile(g, 5+j* CELL_SIZE, 5+(i%20)* CELL_SIZE, i);
+            drawingPanel.drawTile(g, 5+j* CELL_SIZE, 5+(i%20)* CELL_SIZE, i, 1);
             if ((i%20) == 19) {
                 j++;
             }

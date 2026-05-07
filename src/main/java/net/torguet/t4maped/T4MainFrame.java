@@ -25,6 +25,8 @@ public class T4MainFrame extends JFrame {
 
     private final T4PaletteFrame paletteFrame;
 
+    private final T4TileAssemblerFrame tileAssemblerFrame;
+
     private File savedDirectory = null;
 
     private boolean modified = false;
@@ -42,6 +44,10 @@ public class T4MainFrame extends JFrame {
         paletteFrame = new T4PaletteFrame(panel);
 
         paletteFrame.setVisible(true);
+
+        tileAssemblerFrame = new T4TileAssemblerFrame(panel);
+
+        tileAssemblerFrame.setVisible(true);
 
 
         //panel.setBackground(new Color(255, 255, 255));
@@ -164,7 +170,7 @@ public class T4MainFrame extends JFrame {
 
         jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("Block");
+        jMenu2.setText("Tiles");
 
         jMenuItemSelect.setText("Select");
         jMenuItemSelect.addActionListener(new ActionListener() {
@@ -306,6 +312,7 @@ public class T4MainFrame extends JFrame {
             try {
                 panel.loadLaby(filePath);
                 paletteFrame.refresh();
+                tileAssemblerFrame.refresh();
                 modified = false;
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this,
