@@ -11,10 +11,7 @@ public class T4TileAssemblerPanel  extends JPanel {
 
     private int currentTile;
 
-    private int currentTopLeftSubTile;
-    private int currentTopRightSubTile;
-    private int currentBottomLeftSubTile;
-    private int currentBottomRightSubTile;
+    private final int[] currentSubTiles = new int[4];
 
     private int selectedSubTile;
 
@@ -25,15 +22,15 @@ public class T4TileAssemblerPanel  extends JPanel {
     public T4TileAssemblerPanel(T4DrawingPanel drawingPanel) {
         this.drawingPanel = drawingPanel;
         // set a preferred size for the custom panel.
-        setPreferredSize(new Dimension(CELL_SIZE*8+10, CELL_SIZE*16+10));
+        setPreferredSize(new Dimension(CELL_SIZE*8+10, CELL_SIZE*20+10));
         setBackground(Color.BLACK);
     }
 
     public void mousePressed(MouseEvent evt) {
         int i, j;
-        j = (evt.getY() - 5) / CELL_SIZE*2;
-        i = (evt.getX() - 5) / CELL_SIZE*2;
-        int nbTuiles = drawingPanel.getNbTuiles()/4;
+        j = (evt.getY() - 5) / (zoom/2*CELL_SIZE);
+        i = (evt.getX() - 5) / (zoom/2*CELL_SIZE);
+        selectedSubTile = i+2*j;
         repaint();
     }
 
@@ -55,19 +52,22 @@ public class T4TileAssemblerPanel  extends JPanel {
         // draw a red empty rectangle
         g.setColor(Color.RED);
         if (selectedSubTile != -1) {
-            g.drawRect(5 + selectedSubTile&0x2*zoom*CELL_SIZE, 5 + selectedSubTile&0x1*selectedSubTile*zoom*CELL_SIZE, zoom*CELL_SIZE - 1, zoom*CELL_SIZE - 1);
+            g.drawRect(5 + (selectedSubTile&0x1)*(zoom/2*CELL_SIZE),
+                    5 + (selectedSubTile&0x2)/2*(zoom/2*CELL_SIZE),
+                    zoom/2*CELL_SIZE - 1, zoom/2*CELL_SIZE - 1);
         }
     }
 
 
     public void mouseEntered(MouseEvent evt) {
         int i, j;
-        j = (evt.getY() - 5) / CELL_SIZE;
-        i = (evt.getX() - 5) / CELL_SIZE;
-        int nbTuiles = drawingPanel.getNbTuiles()/4;
-        int val = i*20 + j;
-        if (val < nbTuiles)
-            this.setToolTipText(String.valueOf(val));
+        j = (evt.getY() - 5) / (zoom/2*CELL_SIZE);
+        i = (evt.getX() - 5) / (zoom/2*CELL_SIZE);
+        int val = i+2*j;
+        if (val >= 0 && val <= 3)
+            this.setToolTipText("Tile "+currentTile+" SubTile "+currentSubTiles[val]);
+        else
+            this.setToolTipText("Tile "+currentTile+" No SubTile");
     }
 
     public void mouseMoved(MouseEvent e) {
@@ -82,6 +82,7 @@ public class T4TileAssemblerPanel  extends JPanel {
         if (currentTile < 0)
             currentTile = 0;
         repaint();
+        computeSubTiles();
     }
 
     public void nextTile() {
@@ -90,6 +91,7 @@ public class T4TileAssemblerPanel  extends JPanel {
         if (currentTile>=nbTuiles)
             currentTile = 0;
         repaint();
+        computeSubTiles();
     }
 
     public void previousSubTile() {
@@ -97,4 +99,12 @@ public class T4TileAssemblerPanel  extends JPanel {
 
     public void nextSubTile() {
     }
+
+    private void computeSubTiles() {
+        if (drawingPanel.getNbTuiles()>4) {
+            for (int i = 0; i < 4; i++)
+                currentSubTiles[i] = drawingPanel.getTuiles()[currentTile * 4 + i];
+        }
+    }
+
 }
