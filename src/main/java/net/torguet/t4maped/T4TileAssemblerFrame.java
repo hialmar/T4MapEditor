@@ -64,7 +64,7 @@ public class T4TileAssemblerFrame  extends JFrame {
         jScrollPane2 = new JScrollPane();
         jScrollPane2.getVerticalScrollBar().setUnitIncrement(16);
 
-        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
         previousTileButton = new javax.swing.JButton();
         nextTileButton = new javax.swing.JButton();

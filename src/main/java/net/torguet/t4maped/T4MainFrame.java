@@ -9,6 +9,7 @@ package net.torguet.t4maped;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
@@ -87,6 +88,26 @@ public class T4MainFrame extends JFrame {
         jScrollPane2.setViewportView(panel);
         
         pack();
+
+        resetViews();
+    }
+
+    private void resetViews() {
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+
+        int paletteWidth = dimension.width / 6;
+
+        if (paletteWidth<paletteFrame.getWidth())
+            paletteFrame.setSize(paletteWidth, paletteFrame.getHeight());
+
+        dimension.width -= paletteWidth;
+
+        if (dimension.width < this.getWidth())
+            this.setSize(dimension);
+
+        this.setLocation(paletteWidth,0);
+        paletteFrame.setLocation(0,0);
+        tileAssemblerFrame.setLocation(0, paletteFrame.getHeight()+30);
     }
 
     /**
@@ -246,6 +267,54 @@ public class T4MainFrame extends JFrame {
         jMenu2.add(jMenuItemOther);
 
         jMenuBar1.add(jMenu2);
+
+        JMenu jMenu3 = new JMenu();
+
+        jMenu3.setText("Windows");
+
+        JMenuItem jMenuItemResetViews = new JMenuItem();
+        jMenuItemResetViews.setText("Reset Views");
+        jMenuItemResetViews.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                resetViews();
+            }
+        });
+        jMenu3.add(jMenuItemResetViews);
+
+
+        JMenuItem jMenuItemMainView = new JMenuItem();
+        jMenuItemMainView.setText("Main View");
+        jMenuItemMainView.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setVisible(true);
+            }
+        });
+        jMenu3.add(jMenuItemMainView);
+
+        JMenuItem jMenuItemPaletteView = new JMenuItem();
+        jMenuItemPaletteView.setText("Palette View");
+        jMenuItemPaletteView.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                paletteFrame.setVisible(true);
+            }
+        });
+        jMenu3.add(jMenuItemPaletteView);
+
+        JMenuItem jMenuItemTileEditorView = new JMenuItem();
+        jMenuItemTileEditorView.setText("Tile Editor View");
+        jMenuItemTileEditorView.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tileAssemblerFrame.setVisible(true);
+            }
+        });
+        jMenu3.add(jMenuItemTileEditorView);
+
+
+        jMenuBar1.add(jMenu3);
 
         setJMenuBar(jMenuBar1);
 
