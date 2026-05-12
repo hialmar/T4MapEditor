@@ -284,14 +284,37 @@ public class T4MainFrame extends JFrame {
 
 
         JMenuItem jMenuItemMainView = new JMenuItem();
-        jMenuItemMainView.setText("Main View");
+        jMenuItemMainView.setText("Main View Zoom x 1");
         jMenuItemMainView.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setVisible(true);
+                panel.setZoom(1);
+                jScrollPane2.getVerticalScrollBar().setUnitIncrement(16);
             }
         });
         jMenu3.add(jMenuItemMainView);
+
+        JMenuItem jMenuItemMainView4 = new JMenuItem();
+        jMenuItemMainView4.setText("Main View Zoom x 2");
+        jMenuItemMainView4.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                panel.setZoom(2);
+                jScrollPane2.getVerticalScrollBar().setUnitIncrement(16*2);
+            }
+        });
+        jMenu3.add(jMenuItemMainView4);
+
+        JMenuItem jMenuItemMainView8 = new JMenuItem();
+        jMenuItemMainView8.setText("Main View Zoom x 4");
+        jMenuItemMainView8.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                panel.setZoom(4);
+                jScrollPane2.getVerticalScrollBar().setUnitIncrement(16*4);
+            }
+        });
+        jMenu3.add(jMenuItemMainView8);
 
         JMenuItem jMenuItemPaletteView = new JMenuItem();
         jMenuItemPaletteView.setText("Palette View");

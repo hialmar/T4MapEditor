@@ -25,6 +25,7 @@ public class T4DrawingPanel extends JPanel {
     public static final int CELL_SIZE = 24;
     private static final int MAX_FONT = 1024;
     public static final int pixelSize = 2;
+    private int zoom = 1;
     private final int[][] laby = new int[HEIGHT][WIDTH];
     private int largeurLaby = 0;
     private int hauteurLaby = 0;
@@ -127,30 +128,46 @@ public class T4DrawingPanel extends JPanel {
         for(int i = 0; i < laby.length; i++) {
             for (int j = 0; j < laby[i].length; j++) {
                 g.setColor(Color.BLUE);
-                if (j==0) g.drawString(""+(i+1), 5, i*CELL_SIZE+15+CELL_SIZE);
-                if (i==0) g.drawString(""+(j+1), j*CELL_SIZE+5+CELL_SIZE, 15);
+                Graphics2D g2 = (Graphics2D) g;
+                g2.scale(zoom,zoom);
+                if (j==0) g.drawString(""+i, 5, i*CELL_SIZE+15+CELL_SIZE);
+                if (i==0) g.drawString(""+j, j*CELL_SIZE+5+CELL_SIZE, 15);
+                g2.scale(1.0/zoom,1.0/zoom);
                 if (j<largeurLaby && i < hauteurLaby) {
-                    drawTile(g, j * CELL_SIZE + CELL_SIZE + 4, i * CELL_SIZE + CELL_SIZE + 4, laby[i][j], 1);
+                    drawTile(g, j * CELL_SIZE*zoom + CELL_SIZE*zoom + 4, i * CELL_SIZE*zoom + CELL_SIZE*zoom + 4, laby[i][j], zoom);
                 }
                 if (selectMode) {
                     if (i>=selectStartI && i <= selectEndI && j>=selectStartJ && j<= selectEndJ) {
                         g.setColor(Color.RED);
-                        g.drawRect(j * CELL_SIZE + CELL_SIZE + 4, i * CELL_SIZE + CELL_SIZE + 4, CELL_SIZE, CELL_SIZE);
+                        g.drawRect(j * CELL_SIZE*zoom + CELL_SIZE*zoom + 4, i * CELL_SIZE*zoom + CELL_SIZE*zoom + 4, CELL_SIZE*zoom, CELL_SIZE*zoom);
                     }
                 }
             }
         }
     }
 
-    public void drawTile(Graphics g, int x, int y, int tile, int zoom) {
+    public void drawTile(Graphics g, int x, int y, int tile, float zoom) {
         int tileIndex = tile*4;
+        int somme = tuiles[tileIndex];
         drawQuartTile(g, x,y, tuiles[tileIndex++], zoom);
+        somme += tuiles[tileIndex];
         drawQuartTile(g, x+6*zoom*pixelSize,y, tuiles[tileIndex++], zoom);
+        somme += tuiles[tileIndex];
         drawQuartTile(g, x,y+6*zoom*pixelSize, tuiles[tileIndex++], zoom);
+        somme += tuiles[tileIndex];
         drawQuartTile(g, x+6*zoom*pixelSize,y+6*zoom*pixelSize, tuiles[tileIndex], zoom);
+
+        if (somme == 0 && tile != 0) {
+            g.setColor(Color.BLUE);
+            Graphics2D g2 = (Graphics2D) g;
+            g2.scale(zoom,zoom);
+            g.drawString(String.valueOf(tile), (int)(x/zoom)+5, (int)(y/zoom)+15);
+            g2.scale(1.0/zoom,1.0/zoom);
+        }
+
     }
 
-    public void drawQuartTile(Graphics g, int x, int y, int tileIndex, int zoom) {
+    public void drawQuartTile(Graphics g, float x, float y, int tileIndex, float zoom) {
         int quartTuileIndex = tileIndex*6;
         for(int i=0; i<6; i++)
             drawQuartTileLine(g, x, y+i*zoom*pixelSize, quartTuiles[quartTuileIndex+i], i%2 == 0, zoom);
@@ -173,7 +190,7 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
 
     Color[] invertedColors = {Color.WHITE, Color.CYAN, Color.MAGENTA, Color.BLUE, Color.YELLOW, Color.GREEN, Color.RED, Color.BLACK};
 
-    private void switchColor(Graphics g, boolean bit, boolean pair, boolean inverted, int zoom) {
+    private void switchColor(Graphics g, boolean bit, boolean pair, boolean inverted) {
         if (inverted) {
             if (pair) {
                 if (bit)
@@ -197,7 +214,7 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
 
 
 
-    private void drawQuartTileLine(Graphics g, int x, int y, int val, boolean pair, int zoom) {
+    private void drawQuartTileLine(Graphics g, float x, float y, int val, boolean pair, float zoom) {
         // Ensure we start in paint mode.
         g.setPaintMode();
 
@@ -218,46 +235,46 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
 
 
         if (bit6) {
-            switchColor(g, bit6, pair, inverse, zoom);
-            g.fillRect(x, y, pixelSize * zoom, pixelSize * zoom);
+            switchColor(g, bit6, pair, inverse);
+            g.fillRect((int)x, (int)y, (int)(pixelSize * zoom), (int)(pixelSize * zoom));
         } else if (inverse) {
-            switchColor(g, bit6, pair, inverse, zoom);
-            g.fillRect(x, y, pixelSize * zoom, pixelSize * zoom);
+            switchColor(g, bit6, pair, inverse);
+            g.fillRect((int)x, (int)y, (int)(pixelSize * zoom), (int)(pixelSize * zoom));
         }
         if (bit5) {
-            switchColor(g, bit5, pair, inverse, zoom);
-            g.fillRect(x+pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+            switchColor(g, bit5, pair, inverse);
+            g.fillRect((int)(x+pixelSize * zoom), (int)y, (int)(pixelSize * zoom), (int)(pixelSize * zoom));
         } else if (inverse) {
-            switchColor(g, bit5, pair, inverse, zoom);
-            g.fillRect(x+pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+            switchColor(g, bit5, pair, inverse);
+            g.fillRect((int)(x+pixelSize * zoom), (int)y, (int)(pixelSize * zoom), (int)(pixelSize * zoom));
         }
         if (bit4) {
-            switchColor(g, bit4, pair, inverse, zoom);
-            g.fillRect(x+2*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+            switchColor(g, bit4, pair, inverse);
+            g.fillRect((int)(x+2*pixelSize * zoom), (int)y, (int)(pixelSize * zoom), (int)(pixelSize * zoom));
         } else if (inverse) {
-            switchColor(g, bit4, pair, inverse, zoom);
-            g.fillRect(x+2*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+            switchColor(g, bit4, pair, inverse);
+            g.fillRect((int)(x+2*pixelSize * zoom), (int)y, (int)(pixelSize * zoom), (int)(pixelSize * zoom));
         }
         if (bit3) {
-            switchColor(g, bit3, pair, inverse, zoom);
-            g.fillRect(x+3*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+            switchColor(g, bit3, pair, inverse);
+            g.fillRect((int)(x+3*pixelSize * zoom), (int)y, (int)(pixelSize * zoom), (int)(pixelSize * zoom));
         } else if (inverse) {
-            switchColor(g, bit3, pair, inverse, zoom);
-            g.fillRect(x+3*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+            switchColor(g, bit3, pair, inverse);
+            g.fillRect((int)(x+3*pixelSize * zoom), (int)y, (int)(pixelSize * zoom), (int)(pixelSize * zoom));
         }
         if (bit2) {
-            switchColor(g, bit2, pair, inverse, zoom);
-            g.fillRect(x+4*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+            switchColor(g, bit2, pair, inverse);
+            g.fillRect((int)(x+4*pixelSize * zoom), (int)y, (int)(pixelSize * zoom), (int)(pixelSize * zoom));
         } else if (inverse) {
-            switchColor(g, bit2, pair, inverse, zoom);
-            g.fillRect(x+4*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+            switchColor(g, bit2, pair, inverse);
+            g.fillRect((int)(x+4*pixelSize * zoom), (int)y, (int)(pixelSize * zoom), (int)(pixelSize * zoom));
         }
         if (bit1){
-            switchColor(g, bit1, pair, inverse, zoom);
-            g.fillRect(x+5*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+            switchColor(g, bit1, pair, inverse);
+            g.fillRect((int)(x+5*pixelSize * zoom), (int)y, (int)(pixelSize * zoom), (int)(pixelSize * zoom));
         } else if (inverse) {
-            switchColor(g, bit1, pair, inverse, zoom);
-            g.fillRect(x+5*pixelSize*zoom, y, pixelSize*zoom, pixelSize*zoom);
+            switchColor(g, bit1, pair, inverse);
+            g.fillRect((int)(x+5*pixelSize * zoom), (int)y, (int)(pixelSize * zoom), (int)(pixelSize * zoom));
         }
     }
 
@@ -265,8 +282,8 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
 
 void mousePressed(MouseEvent evt) {
         int i, j;
-        i = (evt.getY() - CELL_SIZE - 4) / CELL_SIZE;
-        j = (evt.getX() - CELL_SIZE - 4) / CELL_SIZE;
+        i = (evt.getY() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
+        j = (evt.getX() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
 
         if(i < HEIGHT && j < WIDTH) {
             if (selectMode) {
@@ -304,8 +321,8 @@ void mousePressed(MouseEvent evt) {
     public void mouseDragged(MouseEvent evt) {
         if (selectMode) {
             int i, j;
-            i = (evt.getY() - CELL_SIZE - 4) / CELL_SIZE;
-            j = (evt.getX() - CELL_SIZE - 4) / CELL_SIZE;
+            i = (evt.getY() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
+            j = (evt.getX() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
 
             if(i < HEIGHT && j < WIDTH) {
                 selectEndI = i;
@@ -324,8 +341,8 @@ void mousePressed(MouseEvent evt) {
 
     public void mouseEntered(MouseEvent evt) {
         int i, j;
-        i = (evt.getY() - CELL_SIZE - 4) / CELL_SIZE;
-        j = (evt.getX() - CELL_SIZE - 4) / CELL_SIZE;
+        i = (evt.getY() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
+        j = (evt.getX() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
         if(i>=0 && i < HEIGHT && j >=0 && j < WIDTH) {
             this.setToolTipText(String.valueOf(laby[i][j]));
         }
@@ -401,8 +418,7 @@ void mousePressed(MouseEvent evt) {
     void redo() {
         if (currentUndo != null) {
             // undo
-            if (currentUndo instanceof RegionUndoCell) {
-                RegionUndoCell regionUndoCell = (RegionUndoCell) currentUndo;
+            if (currentUndo instanceof RegionUndoCell regionUndoCell) {
                 regionUndoCell.redoLabyChanges(laby);
             } else {
                 laby[currentUndo.getI()][currentUndo.getJ()] = currentUndo.getValue();
@@ -765,4 +781,9 @@ _L00
         }
     }
 
+    public void setZoom(int i) {
+        zoom = i;
+        setPreferredSize(new Dimension(WIDTH*CELL_SIZE*zoom+CELL_SIZE*zoom,HEIGHT*CELL_SIZE*zoom+CELL_SIZE*zoom));
+        repaint();
+    }
 }
