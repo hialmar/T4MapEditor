@@ -60,13 +60,13 @@ public class T4TileAssemblerPanel  extends JPanel {
             subTilePixel = i;
             if (evt.getClickCount() == 1) {
                 if (evt.getButton() == MouseEvent.BUTTON2) {
-                    int val = drawingPanel.getSubTile()[currentSubTiles[selectedSubTile]*6+subTileLine];
+                    int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile]*6+subTileLine];
                     val ^= (int)Math.pow(2, 5-subTilePixel);
-                    drawingPanel.getSubTile()[currentSubTiles[selectedSubTile]*6+subTileLine] = val;
+                    drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile]*6+subTileLine] = val;
                 } else if (evt.getButton() == MouseEvent.BUTTON3) {
-                    int val = drawingPanel.getSubTile()[currentSubTiles[selectedSubTile]*6+subTileLine];
+                    int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile]*6+subTileLine];
                     val ^= (int)Math.pow(2, 7);
-                    drawingPanel.getSubTile()[currentSubTiles[selectedSubTile]*6+subTileLine] = val;
+                    drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile]*6+subTileLine] = val;
                 }
             }
 
@@ -145,9 +145,19 @@ public class T4TileAssemblerPanel  extends JPanel {
     }
 
     public void previousSubTile() {
+        currentSubTiles[selectedSubTile]--;
+        if (currentSubTiles[selectedSubTile]<0)
+            currentSubTiles[selectedSubTile] = drawingPanel.getNbSubtiles()/6-1;
+        drawingPanel.getTuiles()[currentTile*4+selectedSubTile] = currentSubTiles[selectedSubTile];
+        repaint();
     }
 
     public void nextSubTile() {
+        currentSubTiles[selectedSubTile]++;
+        if (currentSubTiles[selectedSubTile]>drawingPanel.getNbSubtiles()/6-1)
+            currentSubTiles[selectedSubTile] = 0;
+        drawingPanel.getTuiles()[currentTile*4+selectedSubTile] = currentSubTiles[selectedSubTile];
+        repaint();
     }
 
     private void computeSubTiles() {

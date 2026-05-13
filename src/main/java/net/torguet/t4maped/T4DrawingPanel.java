@@ -812,7 +812,11 @@ _L00
         repaint();
     }
 
-    public int[] getSubTile() {
+    public int[] getSubTiles() {
         return quartTuiles;
+    }
+
+    public int getNbSubtiles() {
+        return nbQuartTuiles;
     }
 }
