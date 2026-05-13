@@ -13,7 +13,7 @@ public class T4TileAssemblerPanel  extends JPanel {
 
     private final int[] currentSubTiles = new int[4];
 
-    private int selectedSubTile;
+    private int selectedSubTile = -1;
 
     private int currentSubTile;
 
@@ -22,15 +22,40 @@ public class T4TileAssemblerPanel  extends JPanel {
     public T4TileAssemblerPanel(T4DrawingPanel drawingPanel) {
         this.drawingPanel = drawingPanel;
         // set a preferred size for the custom panel.
-        setPreferredSize(new Dimension(CELL_SIZE*8+10, CELL_SIZE*20+10));
+        setPreferredSize(new Dimension(CELL_SIZE*8+10, CELL_SIZE*10+10));
         setBackground(Color.BLACK);
     }
 
     public void mousePressed(MouseEvent evt) {
         int i, j;
-        j = (evt.getY() - 5) / (zoom/2*CELL_SIZE);
-        i = (evt.getX() - 5) / (zoom/2*CELL_SIZE);
-        selectedSubTile = i+2*j;
+        if (evt.getX() < zoom*CELL_SIZE  + 5 ) {
+            j = (evt.getY() - 5) / (zoom / 2 * CELL_SIZE);
+            i = (evt.getX() - 5) / (zoom / 2 * CELL_SIZE);
+            if (evt.getButton() == MouseEvent.BUTTON1)
+                selectedSubTile = i + 2 * j;
+            else if (evt.getButton() == MouseEvent.BUTTON3) {
+                String s = (String)JOptionPane.showInputDialog(
+                        this,
+                        "Please type the comment for this tile",
+                        "Tile Comment",
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        drawingPanel.getCommentaireTuile()[currentTile]);
+                if (s != null) {
+                    if (!s.startsWith(";"))
+                        s = "; " + s;
+                    drawingPanel.getCommentaireTuile()[currentTile] = s;
+                }
+            }
+
+        } else {
+            j = (evt.getY() - 5) / (zoom * CELL_SIZE / 6);
+            i = (evt.getX() - 5 - zoom*CELL_SIZE) / (zoom * CELL_SIZE / 6);
+            if (i>5) i = 5;
+            if (j>5) j = 5;
+            System.out.println("ligne "+j+" pixel "+i);
+        }
         repaint();
     }
 
@@ -40,6 +65,7 @@ public class T4TileAssemblerPanel  extends JPanel {
     }
 
     public void refresh() {
+        computeSubTiles();
         repaint();
     }
 
@@ -55,6 +81,9 @@ public class T4TileAssemblerPanel  extends JPanel {
             g.drawRect(5 + (selectedSubTile&0x1)*(zoom/2*CELL_SIZE),
                     5 + (selectedSubTile&0x2)/2*(zoom/2*CELL_SIZE),
                     zoom/2*CELL_SIZE - 1, zoom/2*CELL_SIZE - 1);
+
+            drawingPanel.drawQuartTile(g, 5 + zoom*CELL_SIZE + 10,
+                    5, currentSubTiles[selectedSubTile], zoom*2);
         }
     }
 

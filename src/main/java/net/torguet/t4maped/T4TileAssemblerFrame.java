@@ -2,9 +2,7 @@ package net.torguet.t4maped;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.*;
 
 public class T4TileAssemblerFrame  extends JFrame {
 
@@ -61,17 +59,98 @@ public class T4TileAssemblerFrame  extends JFrame {
     }
 
     private void initComponents() {
-        jScrollPane2 = new JScrollPane();
+        JScrollPane jScrollPane2 = new JScrollPane();
         jScrollPane2.getVerticalScrollBar().setUnitIncrement(16);
 
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        
+        JMenuBar jMenuBar1 = new JMenuBar();
+        // Variables declaration - do not modify//GEN-BEGIN:variables
+        JMenu jMenu1 = new JMenu();
+        JMenuItem jMenuItemNew = new JMenuItem();
+        JMenuItem jMenuItemLoad = new JMenuItem();
+        JMenuItem jMenuItemSave = new JMenuItem();
+        JMenu jMenu2 = new JMenu();
+        JMenuItem jMenuItemSelect = new JMenuItem();
+        JMenuItem jMenuItemCopy = new JMenuItem();
+        JMenuItem jMenuItemPaste = new JMenuItem();
+        JMenuItem jMenuItemUndo = new JMenuItem();
+        JMenuItem jMenuItemRedo = new JMenuItem();
 
-        previousTileButton = new javax.swing.JButton();
-        nextTileButton = new javax.swing.JButton();
-        previousSubTile = new javax.swing.JButton();
-        nextSubTile = new javax.swing.JButton();
+        jMenu1.setText("File");
+
+        jMenuItemNew.setText("New");
+        jMenuItemNew.addActionListener(this::jMenuItemNewActionPerformed);
+        jMenu1.add(jMenuItemNew);
+
+        jMenuItemLoad.setText("Open");
+        jMenuItemLoad.addActionListener(this::jMenuItemLoadActionPerformed);
+        jMenu1.add(jMenuItemLoad);
+
+        KeyStroke keyStrokeToOpen
+                = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
+        jMenuItemLoad.setAccelerator(keyStrokeToOpen);
+
+        jMenuItemSave.setText("Save");
+        jMenuItemSave.addActionListener(this::jMenuItemSaveActionPerformed);
+        jMenu1.add(jMenuItemSave);
+
+        KeyStroke keyStrokeToSave
+                = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
+        jMenuItemSave.setAccelerator(keyStrokeToSave);
+        
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Tiles");
+
+        jMenuItemSelect.setText("Select");
+        jMenuItemSelect.addActionListener(this::jMenuItemSelectActionPerformed);
+        jMenu2.add(jMenuItemSelect);
+
+        jMenuItemCopy.setText("Copy");
+        jMenuItemCopy.addActionListener(this::jMenuItemCopyActionPerformed);
+        jMenu2.add(jMenuItemCopy);
+
+        KeyStroke keyStrokeToCopy
+                = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK);
+        jMenuItemCopy.setAccelerator(keyStrokeToCopy);
+
+        jMenuItemPaste.setText("Paste");
+        jMenuItemPaste.addActionListener(this::jMenuItemPasteActionPerformed);
+        jMenu2.add(jMenuItemPaste);
+
+        KeyStroke keyStrokeToPaste
+                = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK);
+        jMenuItemPaste.setAccelerator(keyStrokeToPaste);
+
+        jMenuItemUndo.setText("Undo");
+        jMenuItemUndo.addActionListener(this::jMenuItemUndoActionPerformed);
+        jMenu2.add(jMenuItemUndo);
+
+        KeyStroke keyStrokeToUndo
+                = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK);
+        jMenuItemUndo.setAccelerator(keyStrokeToUndo);
+
+
+        jMenuItemRedo.setText("Redo");
+        jMenuItemRedo.addActionListener(this::jMenuItemRedoActionPerformed);
+        jMenu2.add(jMenuItemRedo);
+
+        KeyStroke keyStrokeToRedo
+                = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK);
+        jMenuItemRedo.setAccelerator(keyStrokeToRedo);
+
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
+
+
+        JButton previousTileButton = new JButton();
+        JButton nextTileButton = new JButton();
+        JButton previousSubTile = new JButton();
+        JButton nextSubTile = new JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        JTextArea jTextArea1 = new JTextArea();
 
         previousTileButton.setText("Previous Tile");
         previousTileButton.setToolTipText("");
@@ -89,7 +168,7 @@ public class T4TileAssemblerFrame  extends JFrame {
         jTextArea1.setEditable(false);
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
-        jTextArea1.setText("1- Choose a Tile.\n2- Click on the Sub Tile\n3- Choose a Sub Tile\n4- You can also edit the Sub Tile\n in the bottom part of the window");
+        jTextArea1.setText("1- Choose a Tile.\n2- Click on the Sub Tile\n3- Choose a Sub Tile\n4- You can also edit the Sub Tile\n in the right part of the window");
         jScrollPane2.setViewportView(jTextArea1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -135,14 +214,31 @@ public class T4TileAssemblerFrame  extends JFrame {
         pack();
     }
 
-    private JScrollPane jScrollPane2;
+    private void jMenuItemLoadActionPerformed(ActionEvent actionEvent) {
+    }
+
+    private void jMenuItemSaveActionPerformed(ActionEvent actionEvent) {
+    }
+
+    private void jMenuItemSelectActionPerformed(ActionEvent actionEvent) {
+    }
+
+    private void jMenuItemCopyActionPerformed(ActionEvent actionEvent) {
+    }
+
+    private void jMenuItemPasteActionPerformed(ActionEvent actionEvent) {
+    }
+
+    private void jMenuItemUndoActionPerformed(ActionEvent actionEvent) {
+    }
+
+    private void jMenuItemRedoActionPerformed(ActionEvent actionEvent) {
+    }
+
+    private void jMenuItemNewActionPerformed(ActionEvent actionEvent) {
+    }
 
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JButton nextSubTile;
-    private javax.swing.JButton nextTileButton;
-    private javax.swing.JButton previousSubTile;
-    private javax.swing.JButton previousTileButton;
 
 
     public void refresh() {

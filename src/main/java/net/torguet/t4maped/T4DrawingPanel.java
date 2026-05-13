@@ -812,4 +812,7 @@ _L00
         repaint();
     }
 
+    public int[] getSubTile() {
+        return quartTuiles;
+    }
 }
