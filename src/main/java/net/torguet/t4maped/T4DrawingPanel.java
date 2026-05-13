@@ -35,6 +35,7 @@ public class T4DrawingPanel extends JPanel {
     private final int[] quartTuiles = new int[MAX_FONT*4];
     private int nbQuartTuiles = 0;
     private final int[] tuiles = new int[MAX_FONT];
+    private final String[] commentaireTuile = new String[MAX_FONT];
     private int nbTuiles = 0;
 
     private int currentValue = 1;
@@ -75,6 +76,10 @@ public class T4DrawingPanel extends JPanel {
 
     public int[] getTuiles() {
         return tuiles;
+    }
+
+    public String[] getCommentaireTuile() {
+        return commentaireTuile;
     }
 
     public void clear() {
@@ -327,7 +332,7 @@ void mousePressed(MouseEvent evt) {
         i = (evt.getY() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
         j = (evt.getX() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
         if(i>=0 && i < HEIGHT && j >=0 && j < WIDTH) {
-            this.setToolTipText(String.valueOf(laby[i][j]));
+            this.setToolTipText(String.valueOf(i) + ',' + j + ':' + laby[i][j] + commentaireTuile[laby[i][j]]);
         }
     }
 
@@ -683,9 +688,14 @@ _L00
         // System.out.println(list);
         list.removeAll(Arrays.asList("", null));
         // System.out.println(list);
+        StringBuilder commentaire = new StringBuilder();
+        boolean debutCom = false;
         for (String oct : list) {
             if (oct.startsWith(";")) {// comment
-                break;
+                debutCom = true;
+                commentaire.append(oct).append(" ");
+            } else if (debutCom) {
+                commentaire.append(oct).append(" ");
             } else {
                 try {
                     tuiles[readingIndex] = Integer.parseInt(oct, 16);
@@ -695,6 +705,7 @@ _L00
                 }
             }
         }
+        commentaireTuile[nbTuiles++] = commentaire.toString();
     }
 
     private void readingQuartTuile(String line) {

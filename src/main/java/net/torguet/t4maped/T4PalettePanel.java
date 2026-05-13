@@ -79,7 +79,7 @@ public class T4PalettePanel extends JPanel {
         int nbTuiles = drawingPanel.getNbTuiles()/4;
         int val = i*numberOfVerticalTiles + j;
         if (val < nbTuiles)
-            this.setToolTipText(String.valueOf(val));
+            this.setToolTipText(val +" "+drawingPanel.getCommentaireTuile()[val]);
     }
 
     public void mouseMoved(MouseEvent e) {
