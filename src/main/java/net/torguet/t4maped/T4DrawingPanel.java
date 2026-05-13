@@ -559,7 +559,7 @@ _L00
             if (i%4 != 3)
                 file.print(",");
             else
-                file.println();
+                file.println(" "+commentaireTuile[i/4]);
         }
 
         file.println("; -----------------------------------------------");
