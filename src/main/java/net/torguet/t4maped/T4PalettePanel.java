@@ -60,7 +60,8 @@ public class T4PalettePanel extends JPanel {
             drawingPanel.drawTile(g, 5+j* CELL_SIZE*zoom, 5+(i%numberOfVerticalTiles)* CELL_SIZE*zoom, i, 0.8f*zoom);
             if (i == selectedTile) {
                 g.setColor(Color.RED);
-                g.drawRect(5+j* CELL_SIZE*zoom, 5+(i%numberOfVerticalTiles)* CELL_SIZE*zoom, CELL_SIZE*zoom-1, CELL_SIZE*zoom-1);
+                g.drawRect(5+j* CELL_SIZE*zoom, 5+(i%numberOfVerticalTiles)* CELL_SIZE*zoom,
+                        (int)(0.8f*CELL_SIZE*zoom-1),  (int)(0.8f*CELL_SIZE*zoom-1));
             }
             if ((i%numberOfVerticalTiles) == numberOfVerticalTiles-1) {
                 j++;

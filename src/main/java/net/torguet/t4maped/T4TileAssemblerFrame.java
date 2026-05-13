@@ -30,7 +30,7 @@ public class T4TileAssemblerFrame  extends JFrame {
             }
             @Override
             public void mouseReleased(MouseEvent evt) {
-                panel.mouseReleased(evt);
+                panel.mouseReleased();
             }
 
             @Override

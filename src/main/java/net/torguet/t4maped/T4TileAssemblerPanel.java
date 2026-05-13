@@ -15,7 +15,8 @@ public class T4TileAssemblerPanel  extends JPanel {
 
     private int selectedSubTile = -1;
 
-    private int currentSubTile;
+    private int subTileLine = -1;
+    private int subTilePixel = -1;
 
     private static final int zoom = 8;
 
@@ -55,13 +56,27 @@ public class T4TileAssemblerPanel  extends JPanel {
             if (i>5) i = 5;
             if (j>5) j = 5;
             System.out.println("ligne "+j+" pixel "+i);
+            subTileLine = j;
+            subTilePixel = i;
+            if (evt.getClickCount() == 1) {
+                if (evt.getButton() == MouseEvent.BUTTON2) {
+                    int val = drawingPanel.getSubTile()[currentSubTiles[selectedSubTile]*6+subTileLine];
+                    val ^= (int)Math.pow(2, 5-subTilePixel);
+                    drawingPanel.getSubTile()[currentSubTiles[selectedSubTile]*6+subTileLine] = val;
+                } else if (evt.getButton() == MouseEvent.BUTTON3) {
+                    int val = drawingPanel.getSubTile()[currentSubTiles[selectedSubTile]*6+subTileLine];
+                    val ^= (int)Math.pow(2, 7);
+                    drawingPanel.getSubTile()[currentSubTiles[selectedSubTile]*6+subTileLine] = val;
+                }
+            }
+
         }
         repaint();
     }
 
 
 
-    public void mouseReleased(MouseEvent evt) {
+    public void mouseReleased() {
     }
 
     public void refresh() {
@@ -82,8 +97,14 @@ public class T4TileAssemblerPanel  extends JPanel {
                     5 + (selectedSubTile&0x2)/2*(zoom/2*CELL_SIZE),
                     zoom/2*CELL_SIZE - 1, zoom/2*CELL_SIZE - 1);
 
-            drawingPanel.drawQuartTile(g, 5 + zoom*CELL_SIZE + 10,
+            drawingPanel.drawQuartTile(g, zoom*CELL_SIZE + 15,
                     5, currentSubTiles[selectedSubTile], zoom*2);
+
+            g.setColor(Color.RED);
+            if (subTileLine != -1 && subTilePixel != -1) {
+                g.drawRect(zoom*CELL_SIZE  + 15 + subTilePixel*zoom*4,
+                        5 + subTileLine * zoom * 4, zoom * 4, zoom * 4);
+            }
         }
     }
 
