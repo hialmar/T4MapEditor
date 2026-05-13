@@ -8,11 +8,12 @@ package net.torguet.t4maped;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -71,32 +72,14 @@ public class T4DrawingPanel extends JPanel {
         return nbTuiles;
     }
 
-    public int getNbQuartTuiles() {
-        return nbQuartTuiles;
-    }
 
     public int[] getTuiles() {
         return tuiles;
     }
 
-    public int[] getQuartTuiles() {
-        return quartTuiles;
-    }
-
-    public int getCouleurImpair() {
-        return couleurImpair;
-    }
-
-    public int getCouleurPair() {
-        return couleurPair;
-    }
-
-    public Color[] getColors() {
-        return colors;
-    }
-
     public void clear() {
         for (int[] laby1 : laby) Arrays.fill(laby1, 0);
+        for (int[] laby1 : copiedValues) Arrays.fill(laby1, 0);
         Arrays.fill(tuiles, 0);
         Arrays.fill(quartTuiles, 0);
         nbQuartTuiles = 0;
@@ -301,20 +284,20 @@ void mousePressed(MouseEvent evt) {
 
                 laby[i][j] = currentValue;
 
-                if (i > hauteurLaby) {
-                    newCell.expandHeight(i, hauteurLaby);
-                    hauteurLaby = i;
+                if (i+1 > hauteurLaby) {
+                    newCell.expandHeight(i+1, hauteurLaby);
+                    hauteurLaby = i+1;
                 }
-                if (j > largeurLaby) {
-                    newCell.expandWidth(j, largeurLaby);
-                    largeurLaby = j;
+                if (j+1 > largeurLaby) {
+                    newCell.expandWidth(j+1, largeurLaby);
+                    largeurLaby = j+1;
                 }
             }
         }
         repaint();
     }
 
-    public void selectMode(ActionEvent evt) {
+    public void selectMode() {
         selectMode = true;
     }
 
@@ -336,7 +319,7 @@ void mousePressed(MouseEvent evt) {
     }
 
 
-    void mouseReleased(MouseEvent evt) {
+    void mouseReleased() {
     }
 
     public void mouseEntered(MouseEvent evt) {
@@ -355,9 +338,9 @@ void mousePressed(MouseEvent evt) {
 
     public void copy() {
         for(int i = 0; i<selectEndI-selectStartI+1;i++) {
-            for(int j = 0; j<selectEndJ-selectStartJ+1; j++) {
-                copiedValues[i][j] = laby[selectStartI+i][selectStartJ+j];
-            }
+            if (selectEndJ - selectStartJ + 1 >= 0)
+                System.arraycopy(laby[selectStartI + i], selectStartJ, copiedValues[i], 0,
+                        selectEndJ - selectStartJ + 1);
         }
         copiedStartI = selectStartI;
         copiedStartJ = selectStartJ;
@@ -396,8 +379,7 @@ void mousePressed(MouseEvent evt) {
     void undo() {
         if (currentUndo != null) {
             // undo
-            if (currentUndo instanceof RegionUndoCell) {
-                RegionUndoCell regionUndoCell = (RegionUndoCell) currentUndo;
+            if (currentUndo instanceof RegionUndoCell regionUndoCell) {
                 regionUndoCell.undoLabyChanges(laby);
             } else {
                 laby[currentUndo.getI()][currentUndo.getJ()] = currentUndo.getPreviousValue();
@@ -436,17 +418,9 @@ void mousePressed(MouseEvent evt) {
         }
     }
 
-    public int getCurrentValue() {
-        return currentValue;
-    }
-
     public void setCurrentValue(int currentValue) {
         this.currentValue = currentValue;
         this.selectMode = false;
-    }
-
-    public int[][] getLaby() {
-        return laby;
     }
     
     public void saveLaby(String fileName) throws IOException {
@@ -525,18 +499,18 @@ _L00
                 file.println(";"+carNumber+" en $"+adresseStr);
             }
             String val = String.format("%02x",quartTuiles[i]);
-            String binaire = "";
+            StringBuilder binaire = new StringBuilder();
             int quartTuile = quartTuiles[i];
             int diviseur = 128;
             while (diviseur > 0) {
                 if (quartTuile/diviseur == 1) {
-                    binaire += '1';
+                    binaire.append('1');
                     quartTuile -= diviseur;
                 } else {
-                    binaire += '0';
+                    binaire.append('0');
                 }
                 if (diviseur>1)
-                    binaire += ',';
+                    binaire.append(',');
                 diviseur/=2;
             }
             file.println("\t.byt $"+val+"	;"+binaire);
@@ -557,12 +531,12 @@ _L00
 
         for(int i=0; i<this.nbTuiles; i++) {
             if(i%4 == 0) {
-                String tileNumber = String.format("%02x",i/4);
-                file.println("_t"+tileNumber+" ");
+                String tileNumber = String.format("_t%02x ",i/4);
+                file.println(tileNumber);
                 file.print("\t\t.byt ");
             }
-            String quartTile = String.format("%02x", tuiles[i]);
-            file.print("$"+quartTile);
+            String quartTile = String.format("$%02x", tuiles[i]);
+            file.print(quartTile);
             if (i%4 != 3)
                 file.print(",");
             else
@@ -574,15 +548,14 @@ _L00
         file.println("; -----------------------------------------------");
         file.println("ptr_t ;(pointeurs t pour tuiles)");
 
-        for (int i = 0; i<this.nbTuiles/4; i++) {
-            int nbTuile = i;
+        for (int nbTuile = 0; nbTuile <this.nbTuiles/4; nbTuile++) {
             if (nbTuile % 6 == 0)
                 file.print("\t.byt ");
             String tileNumber = String.format("%02x", nbTuile);
             file.print("<_t" + tileNumber + ",>_t" + tileNumber);
-            if (i % 6 < 5 && i < this.nbTuiles/4-1)
+            if (nbTuile % 6 < 5 && nbTuile < this.nbTuiles/4-1)
                 file.print(",");
-            if (i % 6 == 5)
+            if (nbTuile % 6 == 5)
                 file.println();
         }
 
@@ -654,6 +627,7 @@ _L00
                             laby[hauteurLaby][largeurLaby] = Integer.parseInt(oct,16);
                             largeurLaby++;
                         } catch (NumberFormatException e) {
+                            Logger.getLogger(T4DrawingPanel.class.getName()).log(Level.WARNING, null, e);
                         }
                     }
                     hauteurLaby++;
@@ -703,6 +677,7 @@ _L00
                     tuiles[readingIndex] = Integer.parseInt(oct, 16);
                     readingIndex++;
                 } catch (NumberFormatException e) {
+                    Logger.getLogger(T4DrawingPanel.class.getName()).log(Level.WARNING, null, e);
                 }
             }
         }
@@ -724,6 +699,7 @@ _L00
                         readingIndex++;
                         break; // 1 seul par ligne
                     } catch (NumberFormatException e) {
+                        Logger.getLogger(T4DrawingPanel.class.getName()).log(Level.WARNING, null, e);
                     }
                 }
             }
@@ -786,4 +762,29 @@ _L00
         setPreferredSize(new Dimension(WIDTH*CELL_SIZE*zoom+CELL_SIZE*zoom,HEIGHT*CELL_SIZE*zoom+CELL_SIZE*zoom));
         repaint();
     }
+
+    public void emptyLaby() {
+        selectStartI = 0;
+        selectEndI = hauteurLaby;
+        selectStartJ = 0;
+        selectEndJ = largeurLaby;
+
+        for (int[] laby1 : copiedValues) Arrays.fill(laby1, 0);
+
+        RegionUndoCell newCell = new RegionUndoCell(selectStartI, selectStartJ, selectEndI, selectEndJ, laby, copiedValues);
+        if (firstUndo == null) {
+            currentUndo = lastUndo = firstUndo = newCell;
+        } else {
+            lastUndo.setNextCell(newCell);
+            newCell.setPreviousCell(lastUndo);
+            currentUndo = lastUndo = newCell;
+        }
+        newCell.redoLabyChanges(laby);
+        if (selectEndJ + 1 > this.largeurLaby)
+            largeurLaby = selectEndJ + 1;
+        if (selectEndI + 1 > this.hauteurLaby)
+            hauteurLaby = selectEndI + 1;
+        repaint();
+    }
+
 }
