@@ -441,6 +441,21 @@ void mousePressed(MouseEvent evt) {
         }
         
         // save the laby
+
+        // hires_et_attributs
+        file.println("""
+                hires_et_atributs
+                \t\tjsr $EC33""");
+        for(int adrDebutBloc = 0xaa01; adrDebutBloc <= 0xb541; adrDebutBloc += 0x1e0) {
+            file.println(String.format("\t\tlda #$%02x", couleurPair));
+            for (int adresse = adrDebutBloc; adresse <= adrDebutBloc + 0x190; adresse += 0x50)
+                file.println(String.format("\t\tsta $%x", adresse));
+            file.println(String.format("\t\tlda #$%02x", couleurImpair));
+            for (int adresse = adrDebutBloc + 0x28; adresse <= adrDebutBloc + 0x1b8; adresse += 0x50)
+                file.println(String.format("\t\tsta $%x", adresse));
+        }
+        file.println("\t\trts");
+
         /*
 
         ;*******************************************
@@ -458,8 +473,7 @@ _L00
             file.println("_L"+lineNumber);
             file.print("\t.byt ");
             for (int j = 0; j < maxJ+1; j++) {
-                String val = String.format("%02x",laby[i][j]);
-                file.print("$"+val);
+                file.print(String.format("$%02x",laby[i][j]));
                 if(j+1<maxJ+1)
                     file.print(",");
             }
@@ -627,7 +641,7 @@ _L00
                             laby[hauteurLaby][largeurLaby] = Integer.parseInt(oct,16);
                             largeurLaby++;
                         } catch (NumberFormatException e) {
-                            Logger.getLogger(T4DrawingPanel.class.getName()).log(Level.WARNING, null, e);
+                            Logger.getLogger(T4DrawingPanel.class.getName()).log(Level.FINEST, null, e);
                         }
                     }
                     hauteurLaby++;
@@ -677,7 +691,7 @@ _L00
                     tuiles[readingIndex] = Integer.parseInt(oct, 16);
                     readingIndex++;
                 } catch (NumberFormatException e) {
-                    Logger.getLogger(T4DrawingPanel.class.getName()).log(Level.WARNING, null, e);
+                    Logger.getLogger(T4DrawingPanel.class.getName()).log(Level.FINEST, null, e);
                 }
             }
         }
@@ -699,7 +713,7 @@ _L00
                         readingIndex++;
                         break; // 1 seul par ligne
                     } catch (NumberFormatException e) {
-                        Logger.getLogger(T4DrawingPanel.class.getName()).log(Level.WARNING, null, e);
+                        Logger.getLogger(T4DrawingPanel.class.getName()).log(Level.FINEST, null, e);
                     }
                 }
             }
