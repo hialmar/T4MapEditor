@@ -161,7 +161,7 @@ public class T4DrawingPanel extends JPanel {
             g.setColor(Color.BLUE);
             Graphics2D g2 = (Graphics2D) g;
             g2.scale(zoom,zoom);
-            g.drawString(String.valueOf(tile), (int)(x/zoom)+5, (int)(y/zoom)+15);
+            g.drawString(String.format("%02x",tile), (int)(x/zoom)+5, (int)(y/zoom)+15);
             g2.scale(1.0/zoom,1.0/zoom);
         }
 
