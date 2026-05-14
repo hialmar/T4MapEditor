@@ -62,11 +62,21 @@ public class T4DrawingPanel extends JPanel {
     private int copiedEndI = -1;
     private int copiedEndJ = -1;
 
+    private boolean modified = false;
+
     public T4DrawingPanel() {
         // set a preferred size for the custom panel.
         setPreferredSize(new Dimension(WIDTH*CELL_SIZE+CELL_SIZE,HEIGHT*CELL_SIZE+CELL_SIZE));
         clear();
         setBackground(Color.BLACK);
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void setModified(boolean modified) {
+        this.modified = modified;
     }
 
     public int getNbTuiles() {
@@ -106,6 +116,8 @@ public class T4DrawingPanel extends JPanel {
         copiedStartJ = -1;
         copiedEndI = -1;
         copiedEndJ = -1;
+        modified = false;
+
         repaint();
     }
 
@@ -289,6 +301,8 @@ void mousePressed(MouseEvent evt) {
 
                 laby[i][j] = currentValue;
 
+                modified = true;
+
                 if (i+1 > hauteurLaby) {
                     newCell.expandHeight(i+1, hauteurLaby);
                     hauteurLaby = i+1;
@@ -332,7 +346,8 @@ void mousePressed(MouseEvent evt) {
         i = (evt.getY() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
         j = (evt.getX() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
         if(i>=0 && i < HEIGHT && j >=0 && j < WIDTH) {
-            this.setToolTipText(String.valueOf(i) + ',' + j + ':' + laby[i][j] + commentaireTuile[laby[i][j]]);
+            this.setToolTipText(String.format("%d, %d:%d($%02x) %s",
+                    i, j, laby[i][j], laby[i][j], commentaireTuile[laby[i][j]]));
         }
     }
 
@@ -604,12 +619,15 @@ _L00
         file.println();
 
         file.close();
+
+        modified = false;
     }
 
 
 
     public void loadLaby(String fileName) throws IOException {
         clear();
+        modified = false;
         BufferedReader file = new BufferedReader(new FileReader(fileName));
         // read the laby
         String line;
@@ -818,5 +836,17 @@ _L00
 
     public int getNbSubtiles() {
         return nbQuartTuiles;
+    }
+
+    public void addNewTile() {
+        if (nbTuiles+4<MAX_FONT) {
+            nbTuiles += 4;
+            setModified(true);
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Too many tiles",
+                    "Too many tiles error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

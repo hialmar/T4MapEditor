@@ -13,12 +13,12 @@ public class T4TileAssemblerFrame  extends JFrame {
     /**
      * Creates new form MainFrame
      */
-    public T4TileAssemblerFrame(T4DrawingPanel drawingPanel) {
+    public T4TileAssemblerFrame(T4DrawingPanel drawingPanel, T4PalettePanel palettePanel) {
         initComponents();
 
         this.setTitle("T4 Tile Editor");
 
-        panel = new T4TileAssemblerPanel(drawingPanel);
+        panel = new T4TileAssemblerPanel(drawingPanel, palettePanel);
 
         //panel.setBackground(new Color(255, 255, 255));
         panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -215,27 +215,36 @@ public class T4TileAssemblerFrame  extends JFrame {
     }
 
     private void jMenuItemLoadActionPerformed(ActionEvent actionEvent) {
+
+
     }
 
     private void jMenuItemSaveActionPerformed(ActionEvent actionEvent) {
+
+
     }
 
     private void jMenuItemSelectActionPerformed(ActionEvent actionEvent) {
     }
 
     private void jMenuItemCopyActionPerformed(ActionEvent actionEvent) {
+        panel.copy();
     }
 
     private void jMenuItemPasteActionPerformed(ActionEvent actionEvent) {
+        panel.paste();
     }
 
     private void jMenuItemUndoActionPerformed(ActionEvent actionEvent) {
+        panel.undo();
     }
 
     private void jMenuItemRedoActionPerformed(ActionEvent actionEvent) {
+        panel.redo();
     }
 
     private void jMenuItemNewActionPerformed(ActionEvent actionEvent) {
+        panel.newTile();
     }
 
     private javax.swing.JScrollPane jScrollPane1;

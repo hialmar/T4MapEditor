@@ -10,6 +10,8 @@ import static net.torguet.t4maped.T4DrawingPanel.CELL_SIZE;
 public class T4PalettePanel extends JPanel {
     private final T4DrawingPanel drawingPanel;
 
+    private T4TileAssemblerPanel tileAssemblerPanel;
+
     private static final int numberOfVerticalTiles = 10;
     private static final int numberOfHorizontalTiles = 15;
     private static final int zoom = 2;
@@ -24,6 +26,10 @@ public class T4PalettePanel extends JPanel {
         setBackground(Color.BLACK);
     }
 
+    public void setTileAssemblerPanel(T4TileAssemblerPanel tileAssemblerPanel) {
+        this.tileAssemblerPanel = tileAssemblerPanel;
+    }
+
     public void mousePressed(MouseEvent evt) {
         int i, j;
         j = (evt.getY() - 5) / (CELL_SIZE*zoom);
@@ -33,6 +39,7 @@ public class T4PalettePanel extends JPanel {
         if (val < nbTuiles) {
             selectedTile = val;
             drawingPanel.setCurrentValue(val);
+            tileAssemblerPanel.setCurrentTile(val);
         } else {
             selectedTile = -1;
             drawingPanel.selectMode();

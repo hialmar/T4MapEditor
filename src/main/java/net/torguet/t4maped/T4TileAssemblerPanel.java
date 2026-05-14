@@ -3,11 +3,13 @@ package net.torguet.t4maped;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 
 import static net.torguet.t4maped.T4DrawingPanel.CELL_SIZE;
 
 public class T4TileAssemblerPanel  extends JPanel {
     private final T4DrawingPanel drawingPanel;
+    private final T4PalettePanel palettePanel;
 
     private int currentTile;
 
@@ -20,8 +22,17 @@ public class T4TileAssemblerPanel  extends JPanel {
 
     private static final int zoom = 8;
 
-    public T4TileAssemblerPanel(T4DrawingPanel drawingPanel) {
+    private UndoCell firstUndo;
+    private UndoCell lastUndo;
+    private UndoCell currentUndo;
+
+    private final int[] copiedSubTiles = new int[4];
+    private String copiedComment;
+
+    public T4TileAssemblerPanel(T4DrawingPanel drawingPanel, T4PalettePanel palettePanel) {
         this.drawingPanel = drawingPanel;
+        this.palettePanel = palettePanel;
+        this.palettePanel.setTileAssemblerPanel(this);
         // set a preferred size for the custom panel.
         setPreferredSize(new Dimension(CELL_SIZE*8+10, CELL_SIZE*10+10));
         setBackground(Color.BLACK);
@@ -46,7 +57,18 @@ public class T4TileAssemblerPanel  extends JPanel {
                 if (s != null) {
                     if (!s.startsWith(";"))
                         s = "; " + s;
-                    drawingPanel.getCommentaireTuile()[currentTile] = s;
+                    TileUndoCell newCell = new TileUndoCell(drawingPanel.getCommentaireTuile()[currentTile], s);
+
+                    newCell.redoTileChanges(drawingPanel.getTuiles(), drawingPanel.getCommentaireTuile());
+
+                    if (firstUndo == null) {
+                        currentUndo = lastUndo = firstUndo = newCell;
+                    } else {
+                        lastUndo.setNextCell(newCell);
+                        newCell.setPreviousCell(lastUndo);
+                        currentUndo = lastUndo = newCell;
+                    }
+                    drawingPanel.setModified(true);
                 }
             }
 
@@ -62,24 +84,51 @@ public class T4TileAssemblerPanel  extends JPanel {
                 if (evt.getButton() == MouseEvent.BUTTON2) {
                     int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile]*6+subTileLine];
                     val ^= (int)Math.pow(2, 5-subTilePixel);
-                    drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile]*6+subTileLine] = val;
+                    modifySubtile(val);
                 } else if (evt.getButton() == MouseEvent.BUTTON3) {
                     int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile]*6+subTileLine];
                     val ^= (int)Math.pow(2, 7);
-                    drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile]*6+subTileLine] = val;
+                    modifySubtile(val);
                 }
             }
-
         }
         repaint();
     }
 
+    private void modifySubtile(int val) {
+        SubtileUndoCell newCell = new SubtileUndoCell(
+                drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile]*6+subTileLine], val,
+                currentSubTiles[selectedSubTile], subTileLine);
+
+        newCell.redoSubtileChanges(drawingPanel.getSubTiles());
+
+        if (firstUndo == null) {
+            currentUndo = lastUndo = firstUndo = newCell;
+        } else {
+            lastUndo.setNextCell(newCell);
+            newCell.setPreviousCell(lastUndo);
+            currentUndo = lastUndo = newCell;
+        }
+        repaintAll();
+        drawingPanel.setModified(true);
+    }
 
 
     public void mouseReleased() {
     }
 
+    public void clear() {
+        firstUndo = lastUndo = currentUndo = null;
+        selectedSubTile = -1;
+        currentTile = 0;
+        for (int i = 0; i < 4; i++)
+            currentSubTiles[i] = 0;
+        subTileLine = -1;
+        subTilePixel = -1;
+    }
+
     public void refresh() {
+        clear();
         computeSubTiles();
         repaint();
     }
@@ -115,9 +164,11 @@ public class T4TileAssemblerPanel  extends JPanel {
         i = (evt.getX() - 5) / (zoom/2*CELL_SIZE);
         int val = i+2*j;
         if (val >= 0 && val <= 3)
-            this.setToolTipText("Tile "+currentTile+" SubTile "+currentSubTiles[val]);
+            this.setToolTipText(String.format("Tile %d($%02x) SubTile %d($%02x)",
+                    currentTile,currentTile, currentSubTiles[val], currentSubTiles[val]));
         else
-            this.setToolTipText("Tile "+currentTile+" No SubTile");
+            this.setToolTipText(String.format("Tile %d($%02x) No SubTile",
+                    currentTile,currentTile));
     }
 
     public void mouseMoved(MouseEvent e) {
@@ -145,19 +196,110 @@ public class T4TileAssemblerPanel  extends JPanel {
     }
 
     public void previousSubTile() {
-        currentSubTiles[selectedSubTile]--;
-        if (currentSubTiles[selectedSubTile]<0)
-            currentSubTiles[selectedSubTile] = drawingPanel.getNbSubtiles()/6-1;
-        drawingPanel.getTuiles()[currentTile*4+selectedSubTile] = currentSubTiles[selectedSubTile];
-        repaint();
+        if (selectedSubTile!=-1) {
+            currentSubTiles[selectedSubTile]--;
+            if (currentSubTiles[selectedSubTile] < 0)
+                currentSubTiles[selectedSubTile] = drawingPanel.getNbSubtiles() / 6 - 1;
+            updateSubTile();
+        }
     }
 
     public void nextSubTile() {
-        currentSubTiles[selectedSubTile]++;
-        if (currentSubTiles[selectedSubTile]>drawingPanel.getNbSubtiles()/6-1)
-            currentSubTiles[selectedSubTile] = 0;
-        drawingPanel.getTuiles()[currentTile*4+selectedSubTile] = currentSubTiles[selectedSubTile];
+        if (selectedSubTile!=-1) {
+            currentSubTiles[selectedSubTile]++;
+            if (currentSubTiles[selectedSubTile] > drawingPanel.getNbSubtiles() / 6 - 1)
+                currentSubTiles[selectedSubTile] = 0;
+            updateSubTile();
+        }
+    }
+
+
+    private void updateSubTile() {
+        TileUndoCell newCell = new TileUndoCell(drawingPanel.getTuiles()[currentTile*4+selectedSubTile],
+                currentSubTiles[selectedSubTile], currentTile, selectedSubTile);
+        redo(newCell);
+    }
+
+    public void undo() {
+        if (currentUndo != null) {
+            // undo
+            if (currentUndo instanceof TileUndoCell tileUndoCell) {
+                tileUndoCell.undoTileChanges(drawingPanel.getTuiles(), drawingPanel.getCommentaireTuile());
+            } else if (currentUndo instanceof SubtileUndoCell subtileUndoCell) {
+                subtileUndoCell.undoSubtileChanges(drawingPanel.getSubTiles());
+            }
+            selectedSubTile = -1;
+            computeSubTiles();
+            repaintAll();
+            // move
+            if (currentUndo.getPreviousCell() != null)
+                currentUndo = currentUndo.getPreviousCell();
+        }
+    }
+
+    public void redo() {
+        if (currentUndo != null) {
+            // redo
+            if (currentUndo instanceof TileUndoCell tileUndoCell) {
+                tileUndoCell.redoTileChanges(drawingPanel.getTuiles(), drawingPanel.getCommentaireTuile());
+            } else if (currentUndo instanceof SubtileUndoCell subtileUndoCell) {
+                subtileUndoCell.redoSubtileChanges(drawingPanel.getSubTiles());
+            }
+            repaintAll();
+            drawingPanel.setModified(true);
+            selectedSubTile = -1;
+            computeSubTiles();
+            // move
+            if (currentUndo.getNextCell() != null)
+                currentUndo = currentUndo.getNextCell();
+        }
+    }
+
+    public void copy() {
+        copiedComment = drawingPanel.getCommentaireTuile()[currentTile];
+        System.arraycopy(currentSubTiles, 0, copiedSubTiles, 0,
+                        currentSubTiles.length);
+    }
+
+    public void paste() {
+        TileUndoCell newCell = new TileUndoCell(drawingPanel.getCommentaireTuile()[currentTile],
+                copiedComment, currentSubTiles, copiedSubTiles, currentTile);
+        redo(newCell);
+        selectedSubTile = -1;
+        computeSubTiles();
+    }
+
+    private void redo(TileUndoCell newCell) {
+        newCell.redoTileChanges(drawingPanel.getTuiles(), drawingPanel.getCommentaireTuile());
+        if (firstUndo == null) {
+            currentUndo = lastUndo = firstUndo = newCell;
+        } else {
+            lastUndo.setNextCell(newCell);
+            newCell.setPreviousCell(lastUndo);
+            currentUndo = lastUndo = newCell;
+        }
+        repaintAll();
+        drawingPanel.setModified(true);
+    }
+
+    public void newTile() {
+        drawingPanel.addNewTile();
+        computeSubTiles();
+        repaintAll();
+    }
+
+    private void repaintAll() {
         repaint();
+        drawingPanel.repaint();
+        palettePanel.repaint();
+    }
+
+    public void loadTiles(String fileName) throws IOException {
+
+    }
+
+    public void saveTiles(String fileName) throws IOException {
+
     }
 
     private void computeSubTiles() {
@@ -167,4 +309,9 @@ public class T4TileAssemblerPanel  extends JPanel {
         }
     }
 
+    public void setCurrentTile(int val) {
+        currentTile = val;
+        computeSubTiles();
+        repaint();
+    }
 }

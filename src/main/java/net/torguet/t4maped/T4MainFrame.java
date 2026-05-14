@@ -30,8 +30,6 @@ public class T4MainFrame extends JFrame {
 
     private File savedDirectory = null;
 
-    private boolean modified = false;
-
     /**
      * Creates new form MainFrame
      */
@@ -46,7 +44,7 @@ public class T4MainFrame extends JFrame {
 
         paletteFrame.setVisible(true);
 
-        tileAssemblerFrame = new T4TileAssemblerFrame(panel);
+        tileAssemblerFrame = new T4TileAssemblerFrame(panel, paletteFrame.getPanel());
 
         tileAssemblerFrame.setVisible(true);
 
@@ -58,7 +56,6 @@ public class T4MainFrame extends JFrame {
             @Override
             public void mousePressed(MouseEvent evt) {
                 panel.mousePressed(evt);
-                modified = true;
             }
             @Override
             public void mouseReleased(MouseEvent evt) {
@@ -298,7 +295,7 @@ public class T4MainFrame extends JFrame {
     }
 
     private void jMenuItemLoadActionPerformed(ActionEvent evt) {//GEN-FIRST:event_jMenuItemLoadActionPerformed
-        if(modified) {
+        if(panel.isModified()) {
             Object[] options = {"Yes","No"};
             int n = JOptionPane.showOptionDialog(this,
                     "The labyrinth was modified.\n"+
@@ -331,7 +328,6 @@ public class T4MainFrame extends JFrame {
                 panel.loadLaby(filePath);
                 paletteFrame.refresh();
                 tileAssemblerFrame.refresh();
-                modified = false;
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this,
                     "Error while loading file "+fileName,
@@ -376,7 +372,6 @@ public class T4MainFrame extends JFrame {
             }
             try {
                 panel.saveLaby(filePath);
-                modified = false;
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this,
                     "Error while saving file "+fileName,
@@ -389,7 +384,7 @@ public class T4MainFrame extends JFrame {
 
     private void jMenuItemQuitActionPerformed(ActionEvent evt) {//GEN-FIRST:event_jMenuItemQuitActionPerformed
         // TODO add your handling code here:
-        if(modified) {
+        if(panel.isModified()) {
             Object[] options = {"Yes","No"};
             int n = JOptionPane.showOptionDialog(this,
                     "The labyrinth was modified.\n"+
@@ -460,6 +455,8 @@ public class T4MainFrame extends JFrame {
 
     private void jMenuItemNewActionPerformed(ActionEvent evt) {//GEN-FIRST:event_jMenuItemNewActionPerformed
         panel.clear();
+        paletteFrame.refresh();
+        tileAssemblerFrame.refresh();
     }//GEN-LAST:event_jMenuItemNewActionPerformed
 
     private void jMenuItemRedoActionPerformed(ActionEvent evt) {//GEN-FIRST:event_jMenuItemDoorActionPerformed

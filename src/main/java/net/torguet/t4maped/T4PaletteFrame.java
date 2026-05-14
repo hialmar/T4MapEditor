@@ -93,4 +93,7 @@ public class T4PaletteFrame extends JFrame {
     }
 
 
+    public T4PalettePanel getPanel() {
+        return panel;
+    }
 }
