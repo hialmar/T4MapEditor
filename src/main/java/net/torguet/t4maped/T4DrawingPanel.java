@@ -147,9 +147,12 @@ public class T4DrawingPanel extends JPanel {
         //g2.scale(zoom,zoom);
         g.setColor(Color.BLUE);
         int visibleJ = 0;
+        int decal = -1;
         for (int j = 0; j < laby[0].length; j++) {
-            if ((j * CELL_SIZE * zoom + 4 >= visibleRectangle.getX())) {
-                g.drawString("" + j, (visibleJ * CELL_SIZE * zoom + CELL_SIZE+10),
+            if (j * CELL_SIZE * zoom + 4 >= visibleRectangle.getX()) {
+                if (decal == -1)
+                    decal = (int) (j * CELL_SIZE * zoom + 4 - visibleRectangle.getX());
+                g.drawString("" + j, (visibleJ * CELL_SIZE * zoom + CELL_SIZE+10)+decal,
                         15);
                 visibleJ++;
             }
@@ -163,10 +166,14 @@ public class T4DrawingPanel extends JPanel {
         //g2.scale(zoom,zoom);
         g.setColor(Color.BLUE);
         int visibleI = 0;
+        int decal = -1;
         for(int i = 0; i < laby.length; i++) {
-            if ((i * CELL_SIZE * zoom + 4 >= visibleRectangle.getY())) {
+            if (i * CELL_SIZE * zoom + 4 >= visibleRectangle.getY()) {
+                if (decal == -1)
+                    decal = (int) ((i * CELL_SIZE * zoom + 4) - visibleRectangle.getY());
+                System.out.println(decal);
                 g.drawString(""+ i, 5,
-                        (visibleI*CELL_SIZE*zoom+ CELL_SIZE+25));
+                        (visibleI*CELL_SIZE*zoom+ CELL_SIZE+25)+decal);
                 visibleI++;
             }
         }
