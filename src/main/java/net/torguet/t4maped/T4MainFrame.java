@@ -44,7 +44,7 @@ public class T4MainFrame extends JFrame {
 
         paletteFrame.setVisible(true);
 
-        tileAssemblerFrame = new T4TileAssemblerFrame(panel, paletteFrame.getPanel());
+        tileAssemblerFrame = new T4TileAssemblerFrame(panel, paletteFrame.getPanel(), this);
 
         tileAssemblerFrame.setVisible(true);
 
@@ -115,6 +115,8 @@ public class T4MainFrame extends JFrame {
         // Variables declaration - do not modify//GEN-BEGIN:variables
         JMenu jMenu1 = new JMenu();
         JMenuItem jMenuItemNew = new JMenuItem();
+        JMenuItem jMenuItemEvenColor = new JMenuItem();
+        JMenuItem jMenuItemOddColor = new JMenuItem();
         JMenuItem jMenuItemLoad = new JMenuItem();
         JMenuItem jMenuItemSave = new JMenuItem();
         JMenuItem jMenuItemQuit = new JMenuItem();
@@ -141,7 +143,7 @@ public class T4MainFrame extends JFrame {
         jMenu1.add(jMenuItemNew);
 
         jMenuItemLoad.setText("Open");
-        jMenuItemLoad.addActionListener(this::jMenuItemLoadActionPerformed);
+        jMenuItemLoad.addActionListener(evt -> jMenuItemLoadActionPerformed(evt, false));
         jMenu1.add(jMenuItemLoad);
 
         KeyStroke keyStrokeToOpen
@@ -149,12 +151,20 @@ public class T4MainFrame extends JFrame {
         jMenuItemLoad.setAccelerator(keyStrokeToOpen);
 
         jMenuItemSave.setText("Save");
-        jMenuItemSave.addActionListener(this::jMenuItemSaveActionPerformed);
+        jMenuItemSave.addActionListener(evt -> jMenuItemSaveActionPerformed(evt, false));
         jMenu1.add(jMenuItemSave);
 
         KeyStroke keyStrokeToSave
                 = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
         jMenuItemSave.setAccelerator(keyStrokeToSave);
+
+        jMenuItemEvenColor.setText("Define Even Color");
+        jMenuItemEvenColor.addActionListener(this::jMenuItemEvenColorActionPerformed);
+        jMenu1.add(jMenuItemEvenColor);
+
+        jMenuItemOddColor.setText("Define Odd Color");
+        jMenuItemOddColor.addActionListener(this::jMenuItemOddColorActionPerformed);
+        jMenu1.add(jMenuItemOddColor);
 
         jMenuItemQuit.setText("Quit");
         jMenuItemQuit.addActionListener(this::jMenuItemQuitActionPerformed);
@@ -282,6 +292,14 @@ public class T4MainFrame extends JFrame {
         pack();
     }
 
+    private void jMenuItemOddColorActionPerformed(ActionEvent actionEvent) {
+        panel.chooseOddColor();
+    }
+
+    private void jMenuItemEvenColorActionPerformed(ActionEvent actionEvent) {
+        panel.chooseEvenColor();
+    }
+
     private void jMenuItemPasteActionPerformed(ActionEvent evt) {
         panel.paste();
     }
@@ -294,8 +312,8 @@ public class T4MainFrame extends JFrame {
         panel.selectMode();
     }
 
-    private void jMenuItemLoadActionPerformed(ActionEvent evt) {//GEN-FIRST:event_jMenuItemLoadActionPerformed
-        if(panel.isModified()) {
+    public void jMenuItemLoadActionPerformed(ActionEvent ignoredEvt, boolean onlyTiles) {//GEN-FIRST:event_jMenuItemLoadActionPerformed
+        if(!onlyTiles && panel.isModified()) {
             Object[] options = {"Yes","No"};
             int n = JOptionPane.showOptionDialog(this,
                     "The labyrinth was modified.\n"+
@@ -325,7 +343,7 @@ public class T4MainFrame extends JFrame {
                 filePath += ".s";
             }
             try {
-                panel.loadLaby(filePath);
+                panel.loadLaby(filePath, onlyTiles);
                 paletteFrame.refresh();
                 tileAssemblerFrame.refresh();
             } catch (IOException ex) {
@@ -338,7 +356,7 @@ public class T4MainFrame extends JFrame {
         }
     }//GEN-LAST:event_jMenuItemLoadActionPerformed
 
-    private void jMenuItemSaveActionPerformed(ActionEvent evt) {//GEN-FIRST:event_jMenuItemSaveActionPerformed
+    public void jMenuItemSaveActionPerformed(ActionEvent ignoredEvt, boolean onlyTiles) {//GEN-FIRST:event_jMenuItemSaveActionPerformed
         JFileChooser chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
             "Labyrinth files", "s");
@@ -371,7 +389,7 @@ public class T4MainFrame extends JFrame {
                     return;
             }
             try {
-                panel.saveLaby(filePath);
+                panel.saveLaby(filePath, onlyTiles);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this,
                     "Error while saving file "+fileName,
@@ -454,7 +472,7 @@ public class T4MainFrame extends JFrame {
     }//GEN-LAST:event_formWindowClosing
 
     private void jMenuItemNewActionPerformed(ActionEvent evt) {//GEN-FIRST:event_jMenuItemNewActionPerformed
-        panel.clear();
+        panel.clear(false);
         paletteFrame.refresh();
         tileAssemblerFrame.refresh();
     }//GEN-LAST:event_jMenuItemNewActionPerformed

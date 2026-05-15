@@ -67,7 +67,7 @@ public class T4DrawingPanel extends JPanel {
     public T4DrawingPanel() {
         // set a preferred size for the custom panel.
         setPreferredSize(new Dimension(WIDTH*CELL_SIZE+CELL_SIZE,HEIGHT*CELL_SIZE+CELL_SIZE));
-        clear();
+        clear(false);
         setBackground(Color.BLACK);
     }
 
@@ -92,9 +92,23 @@ public class T4DrawingPanel extends JPanel {
         return commentaireTuile;
     }
 
-    public void clear() {
-        for (int[] laby1 : laby) Arrays.fill(laby1, 0);
-        for (int[] laby1 : copiedValues) Arrays.fill(laby1, 0);
+    public void clear(boolean onlyTiles) {
+        if (!onlyTiles) {
+            for (int[] laby1 : laby) Arrays.fill(laby1, 0);
+            for (int[] laby1 : copiedValues) Arrays.fill(laby1, 0);
+            largeurLaby = 0;
+            hauteurLaby = 0;
+            selectStartI = -1;
+            selectStartJ = -1;
+            selectEndI = -1;
+            selectEndJ = -1;
+            copiedStartI = -1;
+            copiedStartJ = -1;
+            copiedEndI = -1;
+            copiedEndJ = -1;
+            modified = false;
+            firstUndo = lastUndo = currentUndo = null;
+        }
         Arrays.fill(tuiles, 0);
         Arrays.fill(quartTuiles, 0);
         nbQuartTuiles = 0;
@@ -104,20 +118,7 @@ public class T4DrawingPanel extends JPanel {
         readingQuartTuiles = false;
         readingTiles = false;
         readingMap = false;
-        largeurLaby = 0;
-        hauteurLaby = 0;
-        firstUndo = lastUndo = currentUndo = null;
         selectMode = true;
-        selectStartI = -1;
-        selectStartJ = -1;
-        selectEndI = -1;
-        selectEndJ = -1;
-        copiedStartI = -1;
-        copiedStartJ = -1;
-        copiedEndI = -1;
-        copiedEndJ = -1;
-        modified = false;
-
         repaint();
     }
 
@@ -280,7 +281,7 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
 
 
 
-void mousePressed(MouseEvent evt) {
+    void mousePressed(MouseEvent evt) {
         int i, j;
         i = (evt.getY() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
         j = (evt.getX() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
@@ -443,25 +444,26 @@ void mousePressed(MouseEvent evt) {
         this.selectMode = false;
     }
     
-    public void saveLaby(String fileName) throws IOException {
+    public void saveLaby(String fileName, boolean onlyTiles) throws IOException {
         PrintWriter file = new PrintWriter(new FileWriter(fileName));
-        
-        // first find the maxI and maxJ values
-        int maxI = 0;
-        int maxJ = 0;
-        for (int i = 0; i < laby.length; i++) {
-            int tempoMaxJ=0;
-            for (int j = 0; j < laby[i].length; j++) {
-                if(laby[i][j]>0) {
-                    if (i>maxI) maxI = i;
-                    if (j>tempoMaxJ) tempoMaxJ = j;
-                }
-            }
-            if(tempoMaxJ > maxJ) maxJ = tempoMaxJ;
-        }
-        
-        // save the laby
 
+        saveHiresAndAttribs(file);
+
+        if (!onlyTiles)
+            saveLabyData(file);
+
+        saveSubtiles(file);
+
+        saveTiles(file);
+
+        saveSubtilesAddresses(file);
+
+        file.close();
+
+        modified = false;
+    }
+
+    private void saveHiresAndAttribs(PrintWriter file) {
         // hires_et_attributs
         file.println("""
                 hires_et_atributs
@@ -475,6 +477,129 @@ void mousePressed(MouseEvent evt) {
                 file.println(String.format("\t\tsta $%x", adresse));
         }
         file.println("\t\trts");
+    }
+
+    private static void saveSubtilesAddresses(PrintWriter file) {
+        file.println("; -----------------------------------------------------------------------------");
+        file.println(";    Table adresses car modifies dans 2nd jeu de car mode Hires (1/4 de tuile)");
+        file.println("; -----------------------------------------------------------------------------");
+
+        file.println("sous_tuile");
+
+        for(int i=0; i<0x9ff5-0x9d00; i++) {
+            if (i%0x3c == 0)
+                file.print("\t.byt ");
+            if (i%6 == 0) {
+                int adresse = 0x9d00+i;
+                String adresseHiStr = String.format("%x",adresse/256);
+                String adresseLoStr = String.format("%02x",adresse%256);
+                file.print("$"+adresseHiStr+",$"+adresseLoStr);
+                if(i%0x3c == 0x36)
+                    file.println();
+                else if (adresse!=0x9ff4)
+                    file.print(",");
+            }
+        }
+
+        file.println();
+    }
+
+    private void saveTiles(PrintWriter file) {
+        file.println("; --------------------------------------------------------------------");
+        file.println(";    Table redefinition  des tuiles (N)d'ordre des 4 car redefinis");
+        file.println("; --------------------------------------------------------------------");
+
+        for(int i=0; i<this.nbTuiles; i++) {
+            if(i%4 == 0) {
+                String tileNumber = String.format("_t%02x ",i/4);
+                file.println(tileNumber);
+                file.print("\t\t.byt ");
+            }
+            String quartTile = String.format("$%02x", tuiles[i]);
+            file.print(quartTile);
+            if (i%4 != 3)
+                file.print(",");
+            else
+                file.println(" "+commentaireTuile[i/4]);
+        }
+
+        file.println("; -----------------------------------------------");
+        file.println(";       Table des pointeurs adresse tuiles  ");
+        file.println("; -----------------------------------------------");
+        file.println("ptr_t ;(pointeurs t pour tuiles)");
+
+        for (int nbTuile = 0; nbTuile <this.nbTuiles/4; nbTuile++) {
+            if (nbTuile % 6 == 0)
+                file.print("\t.byt ");
+            String tileNumber = String.format("%02x", nbTuile);
+            file.print("<_t" + tileNumber + ",>_t" + tileNumber);
+            if (nbTuile % 6 < 5 && nbTuile < this.nbTuiles/4-1)
+                file.print(",");
+            if (nbTuile % 6 == 5)
+                file.println();
+        }
+
+        file.println();
+    }
+
+    private void saveSubtiles(PrintWriter file) {
+        file.println();
+        file.println("; -----------------------------------------------");
+        file.println(";       Table redéfinition  2nd jeu de car");
+        file.println("; -----------------------------------------------");
+
+        file.println("dta_car_redef_p1");
+        for(int i=0; i<this.nbQuartTuiles; i++) {
+            if (i%6 == 0) {
+                String carNumber = String.format("%02X",i/6);
+                int adresse = 0x9d00 + i;
+                String adresseStr = String.format("%x",adresse);
+                file.println(";"+carNumber+" en $"+adresseStr);
+            }
+            String val = String.format("%02x",quartTuiles[i]);
+            StringBuilder binaire = new StringBuilder();
+            int quartTuile = quartTuiles[i];
+            int diviseur = 128;
+            while (diviseur > 0) {
+                if (quartTuile/diviseur == 1) {
+                    binaire.append('1');
+                    quartTuile -= diviseur;
+                } else {
+                    binaire.append('0');
+                }
+                if (diviseur>1)
+                    binaire.append(',');
+                diviseur/=2;
+            }
+            file.println("\t.byt $"+val+"	;"+binaire);
+            if (i%6 == 5) {
+                file.println();
+                if(i/6==0x29) {
+                    file.println("dta_car_redef_p2");
+                }
+                if(i/6==0x53) {
+                    file.println("dta_car_redef_p3");
+                }
+            }
+        }
+    }
+
+    private void saveLabyData(PrintWriter file) {
+        // first find the maxI and maxJ values
+        int maxI = 0;
+        int maxJ = 0;
+        for (int i = 0; i < laby.length; i++) {
+            int tempoMaxJ=0;
+            for (int j = 0; j < laby[i].length; j++) {
+                if(laby[i][j]>0) {
+                    if (i>maxI) maxI = i;
+                    if (j>tempoMaxJ) tempoMaxJ = j;
+                }
+            }
+            if(tempoMaxJ > maxJ) maxJ = tempoMaxJ;
+        }
+
+        // save the laby
 
         /*
 
@@ -518,125 +643,25 @@ _L00
             if (i % 10 == 9)
                 file.println();
         }
-
-        file.println();
-        file.println("; -----------------------------------------------");
-        file.println(";       Table redéfinition  2nd jeu de car");
-        file.println("; -----------------------------------------------");
-
-        file.println("dta_car_redef_p1");
-        for(int i=0; i<this.nbQuartTuiles; i++) {
-            if (i%6 == 0) {
-                String carNumber = String.format("%02X",i/6);
-                int adresse = 0x9d00 + i;
-                String adresseStr = String.format("%x",adresse);
-                file.println(";"+carNumber+" en $"+adresseStr);
-            }
-            String val = String.format("%02x",quartTuiles[i]);
-            StringBuilder binaire = new StringBuilder();
-            int quartTuile = quartTuiles[i];
-            int diviseur = 128;
-            while (diviseur > 0) {
-                if (quartTuile/diviseur == 1) {
-                    binaire.append('1');
-                    quartTuile -= diviseur;
-                } else {
-                    binaire.append('0');
-                }
-                if (diviseur>1)
-                    binaire.append(',');
-                diviseur/=2;
-            }
-            file.println("\t.byt $"+val+"	;"+binaire);
-            if (i%6 == 5) {
-                file.println();
-                if(i/6==0x29) {
-                    file.println("dta_car_redef_p2");
-                }
-                if(i/6==0x53) {
-                    file.println("dta_car_redef_p3");
-                }
-            }
-        }
-
-        file.println("; --------------------------------------------------------------------");
-        file.println(";    Table redefinition  des tuiles (N)d'ordre des 4 car redefinis");
-        file.println("; --------------------------------------------------------------------");
-
-        for(int i=0; i<this.nbTuiles; i++) {
-            if(i%4 == 0) {
-                String tileNumber = String.format("_t%02x ",i/4);
-                file.println(tileNumber);
-                file.print("\t\t.byt ");
-            }
-            String quartTile = String.format("$%02x", tuiles[i]);
-            file.print(quartTile);
-            if (i%4 != 3)
-                file.print(",");
-            else
-                file.println(" "+commentaireTuile[i/4]);
-        }
-
-        file.println("; -----------------------------------------------");
-        file.println(";       Table des pointeurs adresse tuiles  ");
-        file.println("; -----------------------------------------------");
-        file.println("ptr_t ;(pointeurs t pour tuiles)");
-
-        for (int nbTuile = 0; nbTuile <this.nbTuiles/4; nbTuile++) {
-            if (nbTuile % 6 == 0)
-                file.print("\t.byt ");
-            String tileNumber = String.format("%02x", nbTuile);
-            file.print("<_t" + tileNumber + ",>_t" + tileNumber);
-            if (nbTuile % 6 < 5 && nbTuile < this.nbTuiles/4-1)
-                file.print(",");
-            if (nbTuile % 6 == 5)
-                file.println();
-        }
-
-        file.println();
-
-        file.println("; -----------------------------------------------------------------------------");
-        file.println(";    Table adresses car modifies dans 2nd jeu de car mode Hires (1/4 de tuile)");
-        file.println("; -----------------------------------------------------------------------------");
-
-        file.println("sous_tuile");
-
-        for(int i=0; i<0x9ff5-0x9d00; i++) {
-            if (i%0x3c == 0)
-                file.print("\t.byt ");
-            if (i%6 == 0) {
-                int adresse = 0x9d00+i;
-                String adresseHiStr = String.format("%x",adresse/256);
-                String adresseLoStr = String.format("%02x",adresse%256);
-                file.print("$"+adresseHiStr+",$"+adresseLoStr);
-                if(i%0x3c == 0x36)
-                    file.println();
-                else if (adresse!=0x9ff4)
-                    file.print(",");
-            }
-        }
-
-        file.println();
-
-        file.close();
-
-        modified = false;
     }
 
 
-
-    public void loadLaby(String fileName) throws IOException {
-        clear();
-        modified = false;
+    public void loadLaby(String fileName, boolean onlyTiles) throws IOException {
+        clear(onlyTiles);
+        if (!onlyTiles) {
+            modified = false;
+        }
         BufferedReader file = new BufferedReader(new FileReader(fileName));
-        // read the laby
+        // read the colors
         String line;
         while((line = file.readLine()) != null) {
             if (line.startsWith("hires_et_atributs")) {
                 readingColors = true;
             } else if(line.startsWith("_L00")) {
-                readingMap = true;
-                System.out.println("Début Map");
+                if (!onlyTiles) {
+                    readingMap = true;
+                    System.out.println("Début Map");
+                }
             } else if(line.startsWith("dta_car_redef_p1")) {
                 endReadingTuiles();
                 readingQuartTuiles = true;
@@ -842,6 +867,7 @@ _L00
         if (nbTuiles+4<MAX_FONT) {
             nbTuiles += 4;
             setModified(true);
+            commentaireTuile[nbTuiles/4-1] = "";
         } else {
             JOptionPane.showMessageDialog(this,
                     "Too many tiles",
@@ -849,4 +875,54 @@ _L00
                     JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    public int newSubtile() {
+        if(nbQuartTuiles+6<MAX_FONT*4) {
+            int oldValue = nbQuartTuiles;
+            nbQuartTuiles += 6;
+            return oldValue;
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "Too many subtiles",
+                    "Too many subtiles error",
+                    JOptionPane.ERROR_MESSAGE);
+            return -1;
+        }
+    }
+
+    public void chooseEvenColor() {
+        int newColorIndex = chooseColor(couleurPair);
+        if (newColorIndex >= 0) {
+            couleurPair = newColorIndex;
+        }
+    }
+
+    public void chooseOddColor() {
+        int newColorIndex = chooseColor(couleurImpair);
+        if (newColorIndex >= 0) {
+            couleurImpair = newColorIndex;
+        }
+    }
+
+    private int chooseColor(int oldColorIndex) {
+        Color oldColor = colors[oldColorIndex];
+        Color newColor = JColorChooser.showDialog(
+                this,
+                "Choose Even Color",
+                oldColor);
+        if (newColor != null) {
+            for(int i=0; i<colors.length; i++) {
+                if (colors[i].equals(newColor)) {
+                    return i;
+                }
+            }
+            JOptionPane.showMessageDialog(this,
+                    "This color was not an Oric color",
+                    "Color error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        return -1;
+    }
+
+
 }

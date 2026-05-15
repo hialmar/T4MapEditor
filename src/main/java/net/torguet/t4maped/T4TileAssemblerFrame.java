@@ -9,16 +9,20 @@ public class T4TileAssemblerFrame  extends JFrame {
 
     private final T4TileAssemblerPanel panel;
 
+    private final T4MainFrame mainFrame;
+
 
     /**
      * Creates new form MainFrame
      */
-    public T4TileAssemblerFrame(T4DrawingPanel drawingPanel, T4PalettePanel palettePanel) {
+    public T4TileAssemblerFrame(T4DrawingPanel drawingPanel, T4PalettePanel palettePanel, T4MainFrame mainFrame) {
         initComponents();
 
         this.setTitle("T4 Tile Editor");
 
         panel = new T4TileAssemblerPanel(drawingPanel, palettePanel);
+
+        this.mainFrame = mainFrame;
 
         //panel.setBackground(new Color(255, 255, 255));
         panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -68,6 +72,7 @@ public class T4TileAssemblerFrame  extends JFrame {
         // Variables declaration - do not modify//GEN-BEGIN:variables
         JMenu jMenu1 = new JMenu();
         JMenuItem jMenuItemNew = new JMenuItem();
+        JMenuItem jMenuItemNewSubtile = new JMenuItem();
         JMenuItem jMenuItemLoad = new JMenuItem();
         JMenuItem jMenuItemSave = new JMenuItem();
         JMenu jMenu2 = new JMenu();
@@ -79,9 +84,13 @@ public class T4TileAssemblerFrame  extends JFrame {
 
         jMenu1.setText("File");
 
-        jMenuItemNew.setText("New");
+        jMenuItemNew.setText("New Tile");
         jMenuItemNew.addActionListener(this::jMenuItemNewActionPerformed);
         jMenu1.add(jMenuItemNew);
+
+        jMenuItemNewSubtile.setText("New Subtile");
+        jMenuItemNewSubtile.addActionListener(this::jMenuItemNewSubtileActionPerformed);
+        jMenu1.add(jMenuItemNewSubtile);
 
         jMenuItemLoad.setText("Open");
         jMenuItemLoad.addActionListener(this::jMenuItemLoadActionPerformed);
@@ -214,14 +223,16 @@ public class T4TileAssemblerFrame  extends JFrame {
         pack();
     }
 
+    private void jMenuItemNewSubtileActionPerformed(ActionEvent actionEvent) {
+        panel.newSubtile();
+    }
+
     private void jMenuItemLoadActionPerformed(ActionEvent actionEvent) {
-
-
+        mainFrame.jMenuItemLoadActionPerformed(actionEvent, true);
     }
 
     private void jMenuItemSaveActionPerformed(ActionEvent actionEvent) {
-
-
+        mainFrame.jMenuItemSaveActionPerformed(actionEvent, true);
     }
 
     private void jMenuItemSelectActionPerformed(ActionEvent actionEvent) {

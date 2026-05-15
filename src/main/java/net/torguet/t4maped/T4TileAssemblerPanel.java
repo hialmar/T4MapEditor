@@ -3,7 +3,6 @@ package net.torguet.t4maped;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
 
 import static net.torguet.t4maped.T4DrawingPanel.CELL_SIZE;
 
@@ -149,10 +148,17 @@ public class T4TileAssemblerPanel  extends JPanel {
             drawingPanel.drawQuartTile(g, zoom*CELL_SIZE + 15,
                     5, currentSubTiles[selectedSubTile], zoom*2);
 
-            g.setColor(Color.RED);
+            g.setColor(Color.LIGHT_GRAY);
+            for(int line = 0; line < 6; line++) {
+                for(int pixel = 0; pixel < 6; pixel++) {
+                    g.drawRect(zoom*CELL_SIZE  + 15 + pixel*zoom*4,
+                            5 + line * zoom * 4, zoom * 4, zoom * 4);
+                }
+            }
             if (subTileLine != -1 && subTilePixel != -1) {
+                g.setColor(Color.RED);
                 g.drawRect(zoom*CELL_SIZE  + 15 + subTilePixel*zoom*4,
-                        5 + subTileLine * zoom * 4, zoom * 4, zoom * 4);
+                        5 + subTileLine * zoom * 4, zoom * 4-1, zoom * 4-1);
             }
         }
     }
@@ -294,14 +300,6 @@ public class T4TileAssemblerPanel  extends JPanel {
         palettePanel.repaint();
     }
 
-    public void loadTiles(String fileName) throws IOException {
-
-    }
-
-    public void saveTiles(String fileName) throws IOException {
-
-    }
-
     private void computeSubTiles() {
         if (drawingPanel.getNbTuiles()>4) {
             for (int i = 0; i < 4; i++)
@@ -314,4 +312,20 @@ public class T4TileAssemblerPanel  extends JPanel {
         computeSubTiles();
         repaint();
     }
+
+    public void newSubtile() {
+        if (selectedSubTile == -1) {
+            JOptionPane.showMessageDialog(this,
+                    "Please first select a subtile in the current tile",
+                    "Subtile creation error",
+                    JOptionPane.ERROR_MESSAGE);
+        } else {
+            int newSubtile = drawingPanel.newSubtile();
+            if (newSubtile > 0) {
+                currentSubTiles[selectedSubTile] = newSubtile / 6;
+                updateSubTile();
+            }
+        }
+    }
+
 }
