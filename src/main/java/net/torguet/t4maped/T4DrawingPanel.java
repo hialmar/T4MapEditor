@@ -128,23 +128,49 @@ public class T4DrawingPanel extends JPanel {
 
         for(int i = 0; i < laby.length; i++) {
             for (int j = 0; j < laby[i].length; j++) {
-                g.setColor(Color.BLUE);
-                Graphics2D g2 = (Graphics2D) g;
-                g2.scale(zoom,zoom);
-                if (j==0) g.drawString(""+i, 5, i*CELL_SIZE+15+CELL_SIZE);
-                if (i==0) g.drawString(""+j, j*CELL_SIZE+5+CELL_SIZE, 15);
-                g2.scale(1.0/zoom,1.0/zoom);
                 if (j<largeurLaby && i < hauteurLaby) {
-                    drawTile(g, j * CELL_SIZE*zoom + CELL_SIZE*zoom + 4, i * CELL_SIZE*zoom + CELL_SIZE*zoom + 4, laby[i][j], zoom);
+                    drawTile(g, j * CELL_SIZE * zoom + 4, i * CELL_SIZE * zoom +  4, laby[i][j], zoom);
                 }
                 if (selectMode) {
                     if (i>=selectStartI && i <= selectEndI && j>=selectStartJ && j<= selectEndJ) {
                         g.setColor(Color.RED);
-                        g.drawRect(j * CELL_SIZE*zoom + CELL_SIZE*zoom + 4, i * CELL_SIZE*zoom + CELL_SIZE*zoom + 4, CELL_SIZE*zoom, CELL_SIZE*zoom);
+                        g.drawRect(j * CELL_SIZE*zoom + 4, i * CELL_SIZE*zoom + 4, CELL_SIZE*zoom, CELL_SIZE*zoom);
                     }
                 }
             }
         }
+    }
+
+    public void paintHorizontalCoordinates(Graphics g) {
+        Rectangle visibleRectangle = this.getVisibleRect();
+        //Graphics2D g2 = (Graphics2D) g;
+        //g2.scale(zoom,zoom);
+        g.setColor(Color.BLUE);
+        int visibleJ = 0;
+        for (int j = 0; j < laby[0].length; j++) {
+            if ((j * CELL_SIZE * zoom + 4 >= visibleRectangle.getX())) {
+                g.drawString("" + j, (visibleJ * CELL_SIZE * zoom + CELL_SIZE+10),
+                        15);
+                visibleJ++;
+            }
+        }
+        //g2.scale(1.0/zoom,1.0/zoom);
+    }
+
+    public void paintVerticalCoordinates(Graphics g) {
+        Rectangle visibleRectangle = this.getVisibleRect();
+        //Graphics2D g2 = (Graphics2D) g;
+        //g2.scale(zoom,zoom);
+        g.setColor(Color.BLUE);
+        int visibleI = 0;
+        for(int i = 0; i < laby.length; i++) {
+            if ((i * CELL_SIZE * zoom + 4 >= visibleRectangle.getY())) {
+                g.drawString(""+ i, 5,
+                        (visibleI*CELL_SIZE*zoom+ CELL_SIZE+25));
+                visibleI++;
+            }
+        }
+        //g2.scale(1.0/zoom,1.0/zoom);
     }
 
     public void drawTile(Graphics g, int x, int y, int tile, float zoom) {
@@ -283,8 +309,8 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
 
     void mousePressed(MouseEvent evt) {
         int i, j;
-        i = (evt.getY() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
-        j = (evt.getX() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
+        i = (evt.getY() - 4) / (CELL_SIZE*zoom);
+        j = (evt.getX() - 4) / (CELL_SIZE*zoom);
 
         if(i < HEIGHT && j < WIDTH) {
             if (selectMode) {
@@ -344,8 +370,8 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
 
     public void mouseEntered(MouseEvent evt) {
         int i, j;
-        i = (evt.getY() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
-        j = (evt.getX() - CELL_SIZE*zoom - 4) / (CELL_SIZE*zoom);
+        i = (evt.getY() -  4) / (CELL_SIZE*zoom);
+        j = (evt.getX() -  4) / (CELL_SIZE*zoom);
         if(i>=0 && i < HEIGHT && j >=0 && j < WIDTH) {
             this.setToolTipText(String.format("%d, %d:%d($%02x) %s",
                     i, j, laby[i][j], laby[i][j], commentaireTuile[laby[i][j]]));

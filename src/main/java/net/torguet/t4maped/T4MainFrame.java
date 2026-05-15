@@ -23,6 +23,8 @@ import java.util.logging.Logger;
 public class T4MainFrame extends JFrame {
 
     private final T4DrawingPanel panel;
+    private final T4HorizontalRulerPanel horizontalRulerPanel;
+    private final T4VerticalRulerPanel verticalRulerPanel;
 
     private final T4PaletteFrame paletteFrame;
 
@@ -36,11 +38,15 @@ public class T4MainFrame extends JFrame {
      * Creates new form MainFrame
      */
     public T4MainFrame() {
-        initComponents();
+
 
         this.setTitle("T4 Map/City Editor");
         
         panel = new T4DrawingPanel();
+        horizontalRulerPanel = new T4HorizontalRulerPanel(panel);
+        verticalRulerPanel = new T4VerticalRulerPanel(panel);
+
+        initComponents();
 
         paletteFrame = new T4PaletteFrame(panel);
         paletteFrame.setVisible(true);
@@ -246,6 +252,8 @@ public class T4MainFrame extends JFrame {
         jMenuItemMainView.addActionListener(e -> {
             panel.setZoom(1);
             jScrollPane2.getVerticalScrollBar().setUnitIncrement(16);
+            horizontalRulerPanel.repaint();
+            verticalRulerPanel.repaint();
         });
         jMenu3.add(jMenuItemMainView);
 
@@ -254,6 +262,8 @@ public class T4MainFrame extends JFrame {
         jMenuItemMainView4.addActionListener(e -> {
             panel.setZoom(2);
             jScrollPane2.getVerticalScrollBar().setUnitIncrement(16*2);
+            horizontalRulerPanel.repaint();
+            verticalRulerPanel.repaint();
         });
         jMenu3.add(jMenuItemMainView4);
 
@@ -262,6 +272,8 @@ public class T4MainFrame extends JFrame {
         jMenuItemMainView8.addActionListener(e -> {
             panel.setZoom(4);
             jScrollPane2.getVerticalScrollBar().setUnitIncrement(16*4);
+            horizontalRulerPanel.repaint();
+            verticalRulerPanel.repaint();
         });
         jMenu3.add(jMenuItemMainView8);
 
@@ -289,16 +301,23 @@ public class T4MainFrame extends JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                    .addComponent(horizontalRulerPanel)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(verticalRulerPanel)
+                .addComponent(jScrollPane2))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                    .addComponent(verticalRulerPanel)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(horizontalRulerPanel)
+                .addComponent(jScrollPane2))
         );
+
+        jScrollPane2.getViewport().addChangeListener(e -> {
+            horizontalRulerPanel.repaint();
+            verticalRulerPanel.repaint();
+        });
 
         pack();
     }
@@ -517,7 +536,7 @@ public class T4MainFrame extends JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new T4MainFrame().setVisible(true));
+        EventQueue.invokeLater(() -> new T4MainFrame().setVisible(true));
     }
 
     private JCheckBoxMenuItem jMenuItemOther;
