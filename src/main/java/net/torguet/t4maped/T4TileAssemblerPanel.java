@@ -9,6 +9,7 @@ import static net.torguet.t4maped.T4DrawingPanel.CELL_SIZE;
 public class T4TileAssemblerPanel  extends JPanel {
     private final T4DrawingPanel drawingPanel;
     private final T4PalettePanel palettePanel;
+    private final T4SubtilePalettePanel subTilePalettePanel;
 
     private int currentTile;
 
@@ -32,6 +33,7 @@ public class T4TileAssemblerPanel  extends JPanel {
         this.drawingPanel = drawingPanel;
         this.palettePanel = palettePanel;
         this.palettePanel.setTileAssemblerPanel(this);
+        this.subTilePalettePanel = subtilePalettePanel;
         subtilePalettePanel.setTileAssemblerPanel(this);
         // set a preferred size for the custom panel.
         setPreferredSize(new Dimension(CELL_SIZE*8+10, CELL_SIZE*10+10));
@@ -317,6 +319,7 @@ public class T4TileAssemblerPanel  extends JPanel {
         repaint();
         drawingPanel.repaint();
         palettePanel.repaint();
+        subTilePalettePanel.repaint();
     }
 
     private void computeSubTiles() {

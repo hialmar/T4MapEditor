@@ -34,9 +34,9 @@ public class T4SubtilePalettePanel extends JPanel {
         int i, j;
         j = (evt.getY() - 5) / (CELL_SIZE/2*zoom);
         i = (evt.getX() - 5) / (CELL_SIZE/2*zoom);
-        int nbTuiles = drawingPanel.getNbTuiles()/4;
+        int nbSubTiles = drawingPanel.getNbSubtiles()/6;
         int val = i*numberOfVerticalTiles + j;
-        if (val < nbTuiles) {
+        if (val < nbSubTiles) {
             selectedTile = val;
             tileAssemblerPanel.setCurrentSubTile(val);
         } else {
