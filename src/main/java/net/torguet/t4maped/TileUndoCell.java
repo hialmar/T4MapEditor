@@ -18,8 +18,8 @@ public class TileUndoCell extends UndoCell {
         typeModif = TypeModif.SubTile;
     }
 
-    public TileUndoCell(String oldComment, String newComment) {
-        super(0, 0, 0, 0);
+    public TileUndoCell(String oldComment, String newComment, int currentTile) {
+        super(0, 0, currentTile, 0);
         typeModif = TypeModif.Comment;
         previousComment = oldComment;
         comment = newComment;

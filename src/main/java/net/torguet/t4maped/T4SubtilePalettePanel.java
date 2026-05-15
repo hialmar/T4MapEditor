@@ -7,18 +7,18 @@ import java.awt.event.MouseEvent;
 import static net.torguet.t4maped.T4DrawingPanel.CELL_SIZE;
 
 
-public class T4PalettePanel extends JPanel {
+public class T4SubtilePalettePanel extends JPanel {
     private final T4DrawingPanel drawingPanel;
 
     private T4TileAssemblerPanel tileAssemblerPanel;
 
     private static final int numberOfVerticalTiles = 10;
-    private static final int numberOfHorizontalTiles = 15;
-    private static final int zoom = 2;
+    private static final int numberOfHorizontalTiles = 25;
+    private static final int zoom = 4;
 
     private int selectedTile = -1;
 
-    public T4PalettePanel(T4DrawingPanel drawingPanel) {
+    public T4SubtilePalettePanel(T4DrawingPanel drawingPanel) {
         this.drawingPanel = drawingPanel;
         // set a preferred size for the custom panel.
         setPreferredSize(new Dimension(CELL_SIZE*zoom*numberOfHorizontalTiles+10,
@@ -32,20 +32,15 @@ public class T4PalettePanel extends JPanel {
 
     public void mousePressed(MouseEvent evt) {
         int i, j;
-        j = (evt.getY() - 5) / (CELL_SIZE*zoom);
-        i = (evt.getX() - 5) / (CELL_SIZE*zoom);
+        j = (evt.getY() - 5) / (CELL_SIZE/2*zoom);
+        i = (evt.getX() - 5) / (CELL_SIZE/2*zoom);
         int nbTuiles = drawingPanel.getNbTuiles()/4;
         int val = i*numberOfVerticalTiles + j;
         if (val < nbTuiles) {
             selectedTile = val;
-            drawingPanel.setCurrentValue(val);
-            tileAssemblerPanel.setCurrentTile(val);
-            if (evt.getButton() == MouseEvent.BUTTON3) {
-                tileAssemblerPanel.modifyTileComment();
-            }
+            tileAssemblerPanel.setCurrentSubTile(val);
         } else {
             selectedTile = -1;
-            drawingPanel.selectMode();
         }
         repaint();
     }
@@ -63,34 +58,31 @@ public class T4PalettePanel extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        int nbTuiles = drawingPanel.getNbTuiles()/4;
+        int nbSubTiles = drawingPanel.getNbSubtiles()/6;
         int j = 0;
         int i = 0;
-        for(; i< nbTuiles; i++) {
-            drawingPanel.drawTile(g, 5+j* CELL_SIZE*zoom, 5+(i%numberOfVerticalTiles)* CELL_SIZE*zoom, i, 0.8f*zoom);
+        for(; i< nbSubTiles; i++) {
+            drawingPanel.drawQuartTile(g, 5+j* CELL_SIZE/2.f*zoom, 5+(i%numberOfVerticalTiles)* CELL_SIZE/2.f*zoom, i, 0.8f*zoom);
             if (i == selectedTile) {
                 g.setColor(Color.RED);
-                g.drawRect(5+j* CELL_SIZE*zoom, 5+(i%numberOfVerticalTiles)* CELL_SIZE*zoom,
-                        (int)(0.8f*CELL_SIZE*zoom-1),  (int)(0.8f*CELL_SIZE*zoom-1));
+                g.drawRect(5+j* CELL_SIZE/2*zoom, 5+(i%numberOfVerticalTiles)* CELL_SIZE/2*zoom,
+                        (int)(0.8f*CELL_SIZE/2.f*zoom-1),  (int)(0.8f*CELL_SIZE/2.f*zoom-1));
             }
             if ((i%numberOfVerticalTiles) == numberOfVerticalTiles-1) {
                 j++;
             }
         }
-        // draw a red empty rectangle
-        g.setColor(Color.RED);
-        g.drawRect(5+j* CELL_SIZE*zoom, 5+(i%numberOfVerticalTiles)* CELL_SIZE*zoom, CELL_SIZE*zoom-1, CELL_SIZE*zoom-1);
     }
 
 
     public void mouseEntered(MouseEvent evt) {
         int i, j;
-        j = (evt.getY() - 5) / (CELL_SIZE*zoom);
-        i = (evt.getX() - 5) / (CELL_SIZE*zoom);
-        int nbTuiles = drawingPanel.getNbTuiles()/4;
+        j = (evt.getY() - 5) / (CELL_SIZE/2*zoom);
+        i = (evt.getX() - 5) / (CELL_SIZE/2*zoom);
+        int nbSubTiles = drawingPanel.getNbSubtiles()/6;
         int val = i*numberOfVerticalTiles + j;
-        if (val < nbTuiles)
-            this.setToolTipText(String.format("%d ($%02x) %s", val, val, drawingPanel.getCommentaireTuile()[val]));
+        if (val < nbSubTiles)
+            this.setToolTipText(String.format("%d ($%02x)", val, val));
     }
 
     public void mouseMoved(MouseEvent e) {

@@ -15,49 +15,49 @@ public class T4TileAssemblerFrame  extends JFrame {
     /**
      * Creates new form MainFrame
      */
-    public T4TileAssemblerFrame(T4DrawingPanel drawingPanel, T4PalettePanel palettePanel, T4MainFrame mainFrame) {
+    public T4TileAssemblerFrame(T4DrawingPanel drawingPanel, T4PalettePanel palettePanel, T4SubtilePalettePanel subtilePalettePanel, T4MainFrame mainFrame) {
         initComponents();
 
         this.setTitle("T4 Tile Editor");
 
-        panel = new T4TileAssemblerPanel(drawingPanel, palettePanel);
+        this.panel = new T4TileAssemblerPanel(drawingPanel, palettePanel, subtilePalettePanel);
 
         this.mainFrame = mainFrame;
 
         //panel.setBackground(new Color(255, 255, 255));
-        panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+        this.panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 
-        panel.addMouseListener(new MouseAdapter() {
+        this.panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent evt) {
-                panel.mousePressed(evt);
+                T4TileAssemblerFrame.this.panel.mousePressed(evt);
             }
             @Override
             public void mouseReleased(MouseEvent evt) {
-                panel.mouseReleased();
+                T4TileAssemblerFrame.this.panel.mouseReleased();
             }
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                panel.mouseEntered(e);
+                T4TileAssemblerFrame.this.panel.mouseEntered(e);
             }
         });
 
-        panel.addMouseMotionListener(new MouseMotionAdapter() {
+        this.panel.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent evt) {
-                panel.mousePressed(evt);
+                T4TileAssemblerFrame.this.panel.mousePressed(evt);
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                panel.mouseMoved(e);
+                T4TileAssemblerFrame.this.panel.mouseMoved(e);
             }
         });
 
 
         // add the component to the frame to see it!
-        jScrollPane1.setViewportView(panel);
+        jScrollPane1.setViewportView(this.panel);
 
         pack();
     }
@@ -177,7 +177,17 @@ public class T4TileAssemblerFrame  extends JFrame {
         jTextArea1.setEditable(false);
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
-        jTextArea1.setText("1- Choose a Tile.\n2- Click on the Sub Tile\n3- Choose a Sub Tile\n4- You can also edit the Sub Tile\n in the right part of the window");
+        jTextArea1.setText("""
+1- Choose a Tile.
+2- Click on the Sub Tile
+3- Choose a Sub Tile
+4- You can also edit the Sub Tile
+ in the right part of the window
+ Left Click sets a bit to 1
+ Right Click sets a bit to 0
+ Ctrl-Left Click sets the inverted bit to 1
+ Ctrl-Right Click sets the inverted bit to 0
+        """);
         jScrollPane2.setViewportView(jTextArea1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

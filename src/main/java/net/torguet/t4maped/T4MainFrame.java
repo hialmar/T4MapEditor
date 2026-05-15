@@ -26,6 +26,8 @@ public class T4MainFrame extends JFrame {
 
     private final T4PaletteFrame paletteFrame;
 
+    private final T4SubtilePaletteFrame subtilePaletteFrame;
+
     private final T4TileAssemblerFrame tileAssemblerFrame;
 
     private File savedDirectory = null;
@@ -41,13 +43,13 @@ public class T4MainFrame extends JFrame {
         panel = new T4DrawingPanel();
 
         paletteFrame = new T4PaletteFrame(panel);
-
         paletteFrame.setVisible(true);
 
-        tileAssemblerFrame = new T4TileAssemblerFrame(panel, paletteFrame.getPanel(), this);
+        subtilePaletteFrame = new T4SubtilePaletteFrame(panel);
+        subtilePaletteFrame.setVisible(true);
 
+        tileAssemblerFrame = new T4TileAssemblerFrame(panel, paletteFrame.getPanel(), subtilePaletteFrame.getPanel(), this);
         tileAssemblerFrame.setVisible(true);
-
 
         //panel.setBackground(new Color(255, 255, 255));
         panel.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -94,8 +96,11 @@ public class T4MainFrame extends JFrame {
 
         int paletteWidth = dimension.width / 3;
 
-        if (paletteWidth<paletteFrame.getWidth())
-            paletteFrame.setSize(paletteWidth, paletteFrame.getHeight()+10);
+        int paletteHeight = dimension.height / 3;
+
+        paletteFrame.setSize(paletteWidth, paletteHeight);
+
+        subtilePaletteFrame.setSize(paletteWidth, paletteHeight);
 
         dimension.width -= paletteWidth;
 
@@ -104,7 +109,8 @@ public class T4MainFrame extends JFrame {
 
         this.setLocation(paletteWidth,0);
         paletteFrame.setLocation(0,0);
-        tileAssemblerFrame.setLocation(0, paletteFrame.getHeight()+30);
+        subtilePaletteFrame.setLocation(0, paletteFrame.getHeight()+30);
+        tileAssemblerFrame.setLocation(0, paletteFrame.getHeight()*2+30);
     }
 
     private void initComponents() {
@@ -264,6 +270,11 @@ public class T4MainFrame extends JFrame {
         jMenuItemPaletteView.addActionListener(e -> paletteFrame.setVisible(true));
         jMenu3.add(jMenuItemPaletteView);
 
+        JMenuItem jMenuItemSubtilePaletteView = new JMenuItem();
+        jMenuItemSubtilePaletteView.setText("SubTile Palette View");
+        jMenuItemSubtilePaletteView.addActionListener(e -> subtilePaletteFrame.setVisible(true));
+        jMenu3.add(jMenuItemSubtilePaletteView);
+
         JMenuItem jMenuItemTileEditorView = new JMenuItem();
         jMenuItemTileEditorView.setText("Tile Editor View");
         jMenuItemTileEditorView.addActionListener(e -> tileAssemblerFrame.setVisible(true));
@@ -345,6 +356,7 @@ public class T4MainFrame extends JFrame {
             try {
                 panel.loadLaby(filePath, onlyTiles);
                 paletteFrame.refresh();
+                subtilePaletteFrame.refresh();
                 tileAssemblerFrame.refresh();
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this,
@@ -474,6 +486,7 @@ public class T4MainFrame extends JFrame {
     private void jMenuItemNewActionPerformed(ActionEvent evt) {//GEN-FIRST:event_jMenuItemNewActionPerformed
         panel.clear(false);
         paletteFrame.refresh();
+        subtilePaletteFrame.refresh();
         tileAssemblerFrame.refresh();
     }//GEN-LAST:event_jMenuItemNewActionPerformed
 

@@ -28,10 +28,11 @@ public class T4TileAssemblerPanel  extends JPanel {
     private final int[] copiedSubTiles = new int[4];
     private String copiedComment;
 
-    public T4TileAssemblerPanel(T4DrawingPanel drawingPanel, T4PalettePanel palettePanel) {
+    public T4TileAssemblerPanel(T4DrawingPanel drawingPanel, T4PalettePanel palettePanel, T4SubtilePalettePanel subtilePalettePanel) {
         this.drawingPanel = drawingPanel;
         this.palettePanel = palettePanel;
         this.palettePanel.setTileAssemblerPanel(this);
+        subtilePalettePanel.setTileAssemblerPanel(this);
         // set a preferred size for the custom panel.
         setPreferredSize(new Dimension(CELL_SIZE*8+10, CELL_SIZE*10+10));
         setBackground(Color.BLACK);
@@ -45,30 +46,7 @@ public class T4TileAssemblerPanel  extends JPanel {
             if (evt.getButton() == MouseEvent.BUTTON1)
                 selectedSubTile = i + 2 * j;
             else if (evt.getButton() == MouseEvent.BUTTON3) {
-                String s = (String)JOptionPane.showInputDialog(
-                        this,
-                        "Please type the comment for this tile",
-                        "Tile Comment",
-                        JOptionPane.PLAIN_MESSAGE,
-                        null,
-                        null,
-                        drawingPanel.getCommentaireTuile()[currentTile]);
-                if (s != null) {
-                    if (!s.startsWith(";"))
-                        s = "; " + s;
-                    TileUndoCell newCell = new TileUndoCell(drawingPanel.getCommentaireTuile()[currentTile], s);
-
-                    newCell.redoTileChanges(drawingPanel.getTuiles(), drawingPanel.getCommentaireTuile());
-
-                    if (firstUndo == null) {
-                        currentUndo = lastUndo = firstUndo = newCell;
-                    } else {
-                        lastUndo.setNextCell(newCell);
-                        newCell.setPreviousCell(lastUndo);
-                        currentUndo = lastUndo = newCell;
-                    }
-                    drawingPanel.setModified(true);
-                }
+                modifyTileComment();
             }
 
         } else {
@@ -106,6 +84,33 @@ public class T4TileAssemblerPanel  extends JPanel {
             }
         }
         repaint();
+    }
+
+    public void modifyTileComment() {
+        String s = (String)JOptionPane.showInputDialog(
+                this,
+                "Please type the comment for this tile",
+                "Tile Comment",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                drawingPanel.getCommentaireTuile()[currentTile]);
+        if (s != null) {
+            if (!s.startsWith(";"))
+                s = "; " + s;
+            TileUndoCell newCell = new TileUndoCell(drawingPanel.getCommentaireTuile()[currentTile], s, currentTile);
+
+            newCell.redoTileChanges(drawingPanel.getTuiles(), drawingPanel.getCommentaireTuile());
+
+            if (firstUndo == null) {
+                currentUndo = lastUndo = firstUndo = newCell;
+            } else {
+                lastUndo.setNextCell(newCell);
+                newCell.setPreviousCell(lastUndo);
+                currentUndo = lastUndo = newCell;
+            }
+            drawingPanel.setModified(true);
+        }
     }
 
     private void modifySubtile(int val) {
@@ -342,4 +347,10 @@ public class T4TileAssemblerPanel  extends JPanel {
         }
     }
 
+    public void setCurrentSubTile(int val) {
+        if (selectedSubTile!=-1) {
+            currentSubTiles[selectedSubTile]=val;
+            updateSubTile();
+        }
+    }
 }
