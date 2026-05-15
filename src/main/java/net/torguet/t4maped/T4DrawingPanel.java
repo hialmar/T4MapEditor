@@ -171,7 +171,6 @@ public class T4DrawingPanel extends JPanel {
             if (i * CELL_SIZE * zoom + 4 >= visibleRectangle.getY()) {
                 if (decal == -1)
                     decal = (int) ((i * CELL_SIZE * zoom + 4) - visibleRectangle.getY());
-                System.out.println(decal);
                 g.drawString(""+ i, 5,
                         (visibleI*CELL_SIZE*zoom+ CELL_SIZE+25)+decal);
                 visibleI++;

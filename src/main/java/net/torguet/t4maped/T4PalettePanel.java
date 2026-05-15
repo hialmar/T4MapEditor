@@ -12,8 +12,8 @@ public class T4PalettePanel extends JPanel {
 
     private T4TileAssemblerPanel tileAssemblerPanel;
 
-    private static final int numberOfVerticalTiles = 10;
-    private static final int numberOfHorizontalTiles = 15;
+    private int numberOfVerticalTiles = 10;
+    private int numberOfHorizontalTiles = 25;
     private static final int zoom = 2;
 
     private int selectedTile = -1;
@@ -95,5 +95,16 @@ public class T4PalettePanel extends JPanel {
 
     public void mouseMoved(MouseEvent e) {
         mouseEntered(e);
+    }
+
+    public void newSize(int ignoredWidth, int height) {
+        int oldNumberOfVerticalTiles = numberOfVerticalTiles;
+        numberOfVerticalTiles = (height - 10) / (CELL_SIZE*zoom) - 1;
+        if (numberOfVerticalTiles < oldNumberOfVerticalTiles)
+            numberOfHorizontalTiles += oldNumberOfVerticalTiles - numberOfVerticalTiles;
+        System.out.println("vert tiles "+numberOfVerticalTiles);
+        System.out.println("horiz tiles "+numberOfHorizontalTiles);
+        setPreferredSize(new Dimension(CELL_SIZE*zoom*numberOfHorizontalTiles+10,
+                CELL_SIZE*zoom*(numberOfVerticalTiles+2)+20));
     }
 }

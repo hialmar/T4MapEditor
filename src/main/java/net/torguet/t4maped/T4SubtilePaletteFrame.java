@@ -2,9 +2,7 @@ package net.torguet.t4maped;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.*;
 
 public class T4SubtilePaletteFrame extends JFrame {
 
@@ -56,6 +54,13 @@ public class T4SubtilePaletteFrame extends JFrame {
 
         // add the component to the frame to see it!
         jScrollPane2.setViewportView(panel);
+
+        this.addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent componentEvent) {
+                // do stuff
+                panel.newSize(getWidth(),getHeight());
+            }
+        });
 
         pack();
     }
