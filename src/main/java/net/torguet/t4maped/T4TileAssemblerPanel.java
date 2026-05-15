@@ -80,14 +80,28 @@ public class T4TileAssemblerPanel  extends JPanel {
             subTileLine = j;
             subTilePixel = i;
             if (evt.getClickCount() == 1) {
-                if (evt.getButton() == MouseEvent.BUTTON2) {
-                    int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile]*6+subTileLine];
-                    val ^= (int)Math.pow(2, 5-subTilePixel);
-                    modifySubtile(val);
+                int onMaskC1 = MouseEvent.CTRL_DOWN_MASK | MouseEvent.BUTTON1_DOWN_MASK;
+                int onMaskC3 = MouseEvent.CTRL_DOWN_MASK | MouseEvent.BUTTON3_DOWN_MASK;
+                if (evt.getButton() == MouseEvent.BUTTON1) {
+                    if ((evt.getModifiersEx() & (onMaskC1)) == onMaskC1) {
+                        int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile] * 6 + subTileLine];
+                        val |= 1 << 7;
+                        modifySubtile(val);
+                    } else {
+                        int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile] * 6 + subTileLine];
+                        val |= 1 << (5 - subTilePixel);
+                        modifySubtile(val);
+                    }
                 } else if (evt.getButton() == MouseEvent.BUTTON3) {
-                    int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile]*6+subTileLine];
-                    val ^= (int)Math.pow(2, 7);
-                    modifySubtile(val);
+                    if ((evt.getModifiersEx() & (onMaskC3)) == onMaskC3) {
+                        int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile] * 6 + subTileLine];
+                        val &= ~(1 << 7);
+                        modifySubtile(val);
+                    } else {
+                        int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile] * 6 + subTileLine];
+                        val &= ~(1 << (5 - subTilePixel));
+                        modifySubtile(val);
+                    }
                 }
             }
         }
