@@ -63,6 +63,7 @@ public class T4DrawingPanel extends JPanel {
     private int copiedEndJ = -1;
 
     private boolean modified = false;
+    private boolean pasteZoneHelperMode;
 
     public T4DrawingPanel() {
         // set a preferred size for the custom panel.
@@ -107,6 +108,7 @@ public class T4DrawingPanel extends JPanel {
             copiedEndI = -1;
             copiedEndJ = -1;
             modified = false;
+            pasteZoneHelperMode = false;
             couleurPair = 1;
             couleurImpair = 5;
             firstUndo = lastUndo = currentUndo = null;
@@ -321,7 +323,13 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
         j = (evt.getX() - 4) / (CELL_SIZE*zoom);
 
         if(i < HEIGHT && j < WIDTH) {
-            if (selectMode) {
+            if (pasteZoneHelperMode) {
+                selectStartI = i;
+                selectStartJ = j;
+                selectEndI = i + (copiedEndI - copiedStartI);
+                selectEndJ = j + (copiedEndJ - copiedStartJ);
+                pasteZoneHelperMode = false;
+            } else if (selectMode) {
                 selectStartI = selectEndI = i;
                 selectStartJ = selectEndJ = j;
             } else {
@@ -426,6 +434,7 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
                 largeurLaby = selectEndJ+1;
             if (selectEndI+1 > this.hauteurLaby)
                 hauteurLaby = selectEndI+1;
+            modified = true;
             repaint();
         }
     }
@@ -962,4 +971,7 @@ _L00
     }
 
 
+    public void pasteZoneHelper() {
+        pasteZoneHelperMode = true;
+    }
 }

@@ -135,6 +135,7 @@ public class T4MainFrame extends JFrame {
         JMenu jMenu2 = new JMenu();
         JMenuItem jMenuItemSelect = new JMenuItem();
         JMenuItem jMenuItemCopy = new JMenuItem();
+        JMenuItem jMenuItemPasteZone = new JMenuItem();
         JMenuItem jMenuItemPaste = new JMenuItem();
         JMenuItem jMenuItemEmpty = new JMenuItem();
         JMenuItem jMenuItemUndo = new JMenuItem();
@@ -201,6 +202,10 @@ public class T4MainFrame extends JFrame {
         KeyStroke keyStrokeToCopy
                 = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK);
         jMenuItemCopy.setAccelerator(keyStrokeToCopy);
+
+        jMenuItemPasteZone.setText("Paste Zone Helper");
+        jMenuItemPasteZone.addActionListener(this::jMenuItemPasteZoneHelperActionPerformed);
+        jMenu2.add(jMenuItemPasteZone);
 
         jMenuItemPaste.setText("Paste");
         jMenuItemPaste.addActionListener(this::jMenuItemPasteActionPerformed);
@@ -283,7 +288,7 @@ public class T4MainFrame extends JFrame {
         jMenu3.add(jMenuItemPaletteView);
 
         JMenuItem jMenuItemSubtilePaletteView = new JMenuItem();
-        jMenuItemSubtilePaletteView.setText("SubTile Palette View");
+        jMenuItemSubtilePaletteView.setText("Sub Tile Palette View");
         jMenuItemSubtilePaletteView.addActionListener(e -> subtilePaletteFrame.setVisible(true));
         jMenu3.add(jMenuItemSubtilePaletteView);
 
@@ -320,6 +325,10 @@ public class T4MainFrame extends JFrame {
         });
 
         pack();
+    }
+
+    private void jMenuItemPasteZoneHelperActionPerformed(ActionEvent actionEvent) {
+        panel.pasteZoneHelper();
     }
 
     private void jMenuItemOddColorActionPerformed(ActionEvent actionEvent) {
