@@ -18,9 +18,9 @@ public class T4TileAssemblerFrame  extends JFrame {
     public T4TileAssemblerFrame(T4DrawingPanel drawingPanel, T4PalettePanel palettePanel, T4SubtilePalettePanel subtilePalettePanel, T4MainFrame mainFrame) {
         initComponents();
 
-        this.setTitle("T4 Tile Editor");
+        this.setTitle("T4 Tile Editor: Edit Mode");
 
-        this.panel = new T4TileAssemblerPanel(drawingPanel, palettePanel, subtilePalettePanel);
+        this.panel = new T4TileAssemblerPanel(drawingPanel, palettePanel, subtilePalettePanel, this);
 
         this.mainFrame = mainFrame;
 
@@ -73,6 +73,8 @@ public class T4TileAssemblerFrame  extends JFrame {
         JMenu jMenu1 = new JMenu();
         JMenuItem jMenuItemNew = new JMenuItem();
         JMenuItem jMenuItemNewSubtile = new JMenuItem();
+        JMenuItem jMenuItemDesignNewTile = new JMenuItem();
+        JMenuItem jMenuItemDesignTile = new JMenuItem();
         JMenuItem jMenuItemLoad = new JMenuItem();
         JMenuItem jMenuItemSave = new JMenuItem();
         JMenu jMenu2 = new JMenu();
@@ -91,6 +93,18 @@ public class T4TileAssemblerFrame  extends JFrame {
         jMenuItemNewSubtile.setText("New Subtile");
         jMenuItemNewSubtile.addActionListener(this::jMenuItemNewSubtileActionPerformed);
         jMenu1.add(jMenuItemNewSubtile);
+
+        jMenuItemDesignNewTile.setText("Design New Tile");
+        jMenuItemDesignNewTile.addActionListener(this::jMenuItemDesignNewTileActionPerformed);
+        jMenu1.add(jMenuItemDesignNewTile);
+
+        jMenuItemSelect.setText("Edit Mode");
+        jMenuItemSelect.addActionListener(this::jMenuItemSelectActionPerformed);
+        jMenu1.add(jMenuItemSelect);
+
+        jMenuItemDesignTile.setText("Design Mode");
+        jMenuItemDesignTile.addActionListener(this::jMenuItemDesignActionPerformed);
+        jMenu1.add(jMenuItemDesignTile);
 
         jMenuItemLoad.setText("Open");
         jMenuItemLoad.addActionListener(this::jMenuItemLoadActionPerformed);
@@ -111,10 +125,6 @@ public class T4TileAssemblerFrame  extends JFrame {
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Tiles");
-
-        jMenuItemSelect.setText("Select");
-        jMenuItemSelect.addActionListener(this::jMenuItemSelectActionPerformed);
-        jMenu2.add(jMenuItemSelect);
 
         jMenuItemCopy.setText("Copy");
         jMenuItemCopy.addActionListener(this::jMenuItemCopyActionPerformed);
@@ -179,7 +189,7 @@ public class T4TileAssemblerFrame  extends JFrame {
         jTextArea1.setRows(5);
         jTextArea1.setText("""
 1- Choose a Tile.
-2- Click on the Sub Tile
+2- Click on the Sub Tile slot
 3- Choose a Sub Tile
 4- You can also edit the Sub Tile
  in the right part of the window
@@ -187,6 +197,11 @@ public class T4TileAssemblerFrame  extends JFrame {
  Right Click sets a bit to 0
  Ctrl-Left Click sets the inverted bit to 1
  Ctrl-Right Click sets the inverted bit to 0
+ Warning: beware of unwanted results when editing shared sub tiles.
+ 
+ If you want to design a complete new tile (with 4 specific sub tiles),
+ choose the "Design New Tile" or "Design Tile" menu options.
+ Warning : again beware of unwanted results when editing shared sub tiles.
         """);
         jScrollPane2.setViewportView(jTextArea1);
 
@@ -233,6 +248,14 @@ public class T4TileAssemblerFrame  extends JFrame {
         pack();
     }
 
+    private void jMenuItemDesignActionPerformed(ActionEvent actionEvent) {
+        panel.startDesignMode();
+    }
+
+    private void jMenuItemDesignNewTileActionPerformed(ActionEvent actionEvent) {
+        panel.designNewTile();
+    }
+
     private void jMenuItemNewSubtileActionPerformed(ActionEvent actionEvent) {
         panel.newSubtile();
     }
@@ -246,6 +269,7 @@ public class T4TileAssemblerFrame  extends JFrame {
     }
 
     private void jMenuItemSelectActionPerformed(ActionEvent actionEvent) {
+        panel.endDesignMode();
     }
 
     private void jMenuItemCopyActionPerformed(ActionEvent actionEvent) {

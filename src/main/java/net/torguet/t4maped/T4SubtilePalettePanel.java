@@ -62,6 +62,9 @@ public class T4SubtilePalettePanel extends JPanel {
         int i = 0;
         for (; i < nbSubTiles; i++) {
             drawingPanel.drawQuartTile(g, 5 + j * CELL_SIZE / 2.f * zoom, 5 + (i % numberOfVerticalTiles) * CELL_SIZE / 2.f * zoom, i, 0.8f * zoom);
+            g.setColor(Color.WHITE);
+            g.drawRect(5 + j * CELL_SIZE / 2 * zoom, 5 + (i % numberOfVerticalTiles) * CELL_SIZE / 2 * zoom,
+                    (int) (0.8f * CELL_SIZE / 2.f * zoom), (int) (0.8f * CELL_SIZE / 2.f * zoom));
             if (i == selectedTile) {
                 g.setColor(Color.RED);
                 g.drawRect(5 + j * CELL_SIZE / 2 * zoom, 5 + (i % numberOfVerticalTiles) * CELL_SIZE / 2 * zoom,

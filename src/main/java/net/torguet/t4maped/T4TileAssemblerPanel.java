@@ -10,6 +10,7 @@ public class T4TileAssemblerPanel  extends JPanel {
     private final T4DrawingPanel drawingPanel;
     private final T4PalettePanel palettePanel;
     private final T4SubtilePalettePanel subTilePalettePanel;
+    private final T4TileAssemblerFrame tileAssemblerFrame;
 
     private int currentTile;
 
@@ -28,64 +29,87 @@ public class T4TileAssemblerPanel  extends JPanel {
 
     private final int[] copiedSubTiles = new int[4];
     private String copiedComment;
+    private boolean designMode;
 
-    public T4TileAssemblerPanel(T4DrawingPanel drawingPanel, T4PalettePanel palettePanel, T4SubtilePalettePanel subtilePalettePanel) {
+    public T4TileAssemblerPanel(T4DrawingPanel drawingPanel, T4PalettePanel palettePanel, T4SubtilePalettePanel subtilePalettePanel, T4TileAssemblerFrame tileAssemblerFrame) {
         this.drawingPanel = drawingPanel;
         this.palettePanel = palettePanel;
         this.palettePanel.setTileAssemblerPanel(this);
         this.subTilePalettePanel = subtilePalettePanel;
+        this.tileAssemblerFrame = tileAssemblerFrame;
         subtilePalettePanel.setTileAssemblerPanel(this);
         // set a preferred size for the custom panel.
         setPreferredSize(new Dimension(CELL_SIZE*8+10, CELL_SIZE*10+10));
         setBackground(Color.BLACK);
+        designMode = false;
     }
 
     public void mousePressed(MouseEvent evt) {
+        if (drawingPanel.getNbTuiles() == 0 || drawingPanel.getNbSubtiles() == 0)
+            return;
         int i, j;
         if (evt.getX() < zoom*CELL_SIZE  + 5 ) {
             j = (evt.getY() - 5) / (zoom / 2 * CELL_SIZE);
             i = (evt.getX() - 5) / (zoom / 2 * CELL_SIZE);
-            if (evt.getButton() == MouseEvent.BUTTON1)
-                selectedSubTile = i + 2 * j;
-            else if (evt.getButton() == MouseEvent.BUTTON3) {
-                modifyTileComment();
-            }
-
-        } else {
-            j = (evt.getY() - 5) / (zoom * CELL_SIZE / 6);
-            i = (evt.getX() - 5 - zoom*CELL_SIZE) / (zoom * CELL_SIZE / 6);
-            if (i>5) i = 5;
-            if (j>5) j = 5;
-            System.out.println("ligne "+j+" pixel "+i);
-            subTileLine = j;
-            subTilePixel = i;
-            if (evt.getClickCount() == 1) {
-                int onMaskC1 = MouseEvent.CTRL_DOWN_MASK | MouseEvent.BUTTON1_DOWN_MASK;
-                int onMaskC3 = MouseEvent.CTRL_DOWN_MASK | MouseEvent.BUTTON3_DOWN_MASK;
-                if (evt.getButton() == MouseEvent.BUTTON1) {
-                    if ((evt.getModifiersEx() & (onMaskC1)) == onMaskC1) {
-                        int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile] * 6 + subTileLine];
-                        val |= 1 << 7;
-                        modifySubtile(val);
-                    } else {
-                        int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile] * 6 + subTileLine];
-                        val |= 1 << (5 - subTilePixel);
-                        modifySubtile(val);
-                    }
-                } else if (evt.getButton() == MouseEvent.BUTTON3) {
-                    if ((evt.getModifiersEx() & (onMaskC3)) == onMaskC3) {
-                        int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile] * 6 + subTileLine];
-                        val &= ~(1 << 7);
-                        modifySubtile(val);
-                    } else {
-                        int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile] * 6 + subTileLine];
-                        val &= ~(1 << (5 - subTilePixel));
-                        modifySubtile(val);
+            selectedSubTile = i + 2 * j;
+            if (selectedSubTile > 3) {
+                selectedSubTile = -1;
+            } else {
+                if (designMode) {
+                    j = (evt.getY() - 5) / (zoom * CELL_SIZE / 12);
+                    i = (evt.getX() - 5) / (zoom * CELL_SIZE / 12);
+                    if (i > 11) i = 11;
+                    if (j > 11) j = 11;
+                    System.out.println("ligne " + j + " pixel " + i);
+                    if (i > 5) i -= 6;
+                    if (j > 5) j -= 6;
+                    System.out.println("In SubTile " + selectedSubTile + " ligne " + j + " pixel " + i);
+                    editSubTile(evt, i, j);
+                } else {
+                    if (evt.getButton() == MouseEvent.BUTTON3) {
+                        modifyTileComment();
                     }
                 }
             }
+        } else {
+            j = (evt.getY() - 5) / (zoom * CELL_SIZE / 6);
+            i = (evt.getX() - 5 - zoom*CELL_SIZE) / (zoom * CELL_SIZE / 6);
+            if (selectedSubTile!= -1 && i<=5 && j<=5) {
+                System.out.println("ligne " + j + " pixel " + i);
+                editSubTile(evt, i, j);
+            }
         }
         repaint();
+    }
+
+    private void editSubTile(MouseEvent evt, int i, int j) {
+        subTileLine = j;
+        subTilePixel = i;
+        if (evt.getClickCount() == 1) {
+            int onMaskC1 = MouseEvent.CTRL_DOWN_MASK | MouseEvent.BUTTON1_DOWN_MASK;
+            int onMaskC3 = MouseEvent.CTRL_DOWN_MASK | MouseEvent.BUTTON3_DOWN_MASK;
+            if (evt.getButton() == MouseEvent.BUTTON1) {
+                if ((evt.getModifiersEx() & (onMaskC1)) == onMaskC1) {
+                    int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile] * 6 + subTileLine];
+                    val |= 1 << 7;
+                    modifySubtile(val);
+                } else {
+                    int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile] * 6 + subTileLine];
+                    val |= 1 << (5 - subTilePixel);
+                    modifySubtile(val);
+                }
+            } else if (evt.getButton() == MouseEvent.BUTTON3) {
+                if ((evt.getModifiersEx() & (onMaskC3)) == onMaskC3) {
+                    int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile] * 6 + subTileLine];
+                    val &= ~(1 << 7);
+                    modifySubtile(val);
+                } else {
+                    int val = drawingPanel.getSubTiles()[currentSubTiles[selectedSubTile] * 6 + subTileLine];
+                    val &= ~(1 << (5 - subTilePixel));
+                    modifySubtile(val);
+                }
+            }
+        }
     }
 
     public void modifyTileComment() {
@@ -145,6 +169,7 @@ public class T4TileAssemblerPanel  extends JPanel {
             currentSubTiles[i] = 0;
         subTileLine = -1;
         subTilePixel = -1;
+        designMode = false;
     }
 
     public void refresh() {
@@ -161,7 +186,7 @@ public class T4TileAssemblerPanel  extends JPanel {
 
         // draw a red empty rectangle
         g.setColor(Color.RED);
-        if (selectedSubTile != -1) {
+        if (selectedSubTile >= 0 && selectedSubTile <=3) {
             g.drawRect(5 + (selectedSubTile&0x1)*(zoom/2*CELL_SIZE),
                     5 + (selectedSubTile&0x2)/2*(zoom/2*CELL_SIZE),
                     zoom/2*CELL_SIZE - 1, zoom/2*CELL_SIZE - 1);
@@ -211,6 +236,7 @@ public class T4TileAssemblerPanel  extends JPanel {
             currentTile = 0;
         repaint();
         computeSubTiles();
+        endDesignMode();
     }
 
     public void nextTile() {
@@ -220,6 +246,7 @@ public class T4TileAssemblerPanel  extends JPanel {
             currentTile = 0;
         repaint();
         computeSubTiles();
+        endDesignMode();
     }
 
     public void previousSubTile() {
@@ -228,6 +255,7 @@ public class T4TileAssemblerPanel  extends JPanel {
             if (currentSubTiles[selectedSubTile] < 0)
                 currentSubTiles[selectedSubTile] = drawingPanel.getNbSubtiles() / 6 - 1;
             updateSubTile();
+            endDesignMode();
         }
     }
 
@@ -237,6 +265,7 @@ public class T4TileAssemblerPanel  extends JPanel {
             if (currentSubTiles[selectedSubTile] > drawingPanel.getNbSubtiles() / 6 - 1)
                 currentSubTiles[selectedSubTile] = 0;
             updateSubTile();
+            endDesignMode();
         }
     }
 
@@ -261,6 +290,7 @@ public class T4TileAssemblerPanel  extends JPanel {
             // move
             if (currentUndo.getPreviousCell() != null)
                 currentUndo = currentUndo.getPreviousCell();
+            endDesignMode();
         }
     }
 
@@ -279,6 +309,7 @@ public class T4TileAssemblerPanel  extends JPanel {
             // move
             if (currentUndo.getNextCell() != null)
                 currentUndo = currentUndo.getNextCell();
+            endDesignMode();
         }
     }
 
@@ -294,6 +325,7 @@ public class T4TileAssemblerPanel  extends JPanel {
         redo(newCell);
         selectedSubTile = -1;
         computeSubTiles();
+        endDesignMode();
     }
 
     private void redo(TileUndoCell newCell) {
@@ -310,9 +342,20 @@ public class T4TileAssemblerPanel  extends JPanel {
     }
 
     public void newTile() {
-        drawingPanel.addNewTile();
-        computeSubTiles();
-        repaintAll();
+        int oldTile = currentTile;
+        currentTile = drawingPanel.addNewTile();
+        if (currentTile == -1) {
+            currentTile = oldTile;
+        } else {
+            if (drawingPanel.getNbSubtiles()==0) {
+                // create the first sub tile
+                selectedSubTile = 0;
+                newSubtile();
+            }
+            computeSubTiles();
+            repaintAll();
+            endDesignMode();
+        }
     }
 
     private void repaintAll() {
@@ -327,11 +370,14 @@ public class T4TileAssemblerPanel  extends JPanel {
             for (int i = 0; i < 4; i++)
                 currentSubTiles[i] = drawingPanel.getTuiles()[currentTile * 4 + i];
         }
+        palettePanel.selectTile(currentTile);
     }
 
     public void setCurrentTile(int val) {
         currentTile = val;
+        palettePanel.selectTile(currentTile);
         computeSubTiles();
+        endDesignMode();
         repaint();
     }
 
@@ -347,6 +393,7 @@ public class T4TileAssemblerPanel  extends JPanel {
                 currentSubTiles[selectedSubTile] = newSubtile / 6;
                 updateSubTile();
             }
+            endDesignMode();
         }
     }
 
@@ -355,5 +402,36 @@ public class T4TileAssemblerPanel  extends JPanel {
             currentSubTiles[selectedSubTile]=val;
             updateSubTile();
         }
+    }
+
+    public void designNewTile() {
+        int oldTile = currentTile;
+        currentTile = drawingPanel.addNewTile();
+        if (currentTile>=0) {
+            for (selectedSubTile = 0; selectedSubTile < currentSubTiles.length; selectedSubTile++) {
+                int newSubtile = drawingPanel.newSubtile();
+                if (newSubtile >= 0) {
+                    currentSubTiles[selectedSubTile] = newSubtile / 6;
+                    updateSubTile();
+                }
+            }
+            startDesignMode();
+            palettePanel.selectTile(currentTile);
+        } else {
+            currentTile = oldTile;
+        }
+        selectedSubTile = -1;
+        computeSubTiles();
+        repaintAll();
+    }
+
+    public void endDesignMode() {
+        designMode = false;
+        tileAssemblerFrame.setTitle("T4 Tile Editor: Edit Mode");
+    }
+
+    public void startDesignMode() {
+        designMode = true;
+        tileAssemblerFrame.setTitle("T4 Tile Editor: Design Mode");
     }
 }

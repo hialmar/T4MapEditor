@@ -68,6 +68,9 @@ public class T4PalettePanel extends JPanel {
         int i = 0;
         for(; i< nbTuiles; i++) {
             drawingPanel.drawTile(g, 5+j* CELL_SIZE*zoom, 5+(i%numberOfVerticalTiles)* CELL_SIZE*zoom, i, 0.8f*zoom);
+            g.setColor(Color.WHITE);
+            g.drawRect(5+j* CELL_SIZE*zoom, 5+(i%numberOfVerticalTiles)* CELL_SIZE*zoom,
+                    (int)(0.8f*CELL_SIZE*zoom),  (int)(0.8f*CELL_SIZE*zoom));
             if (i == selectedTile) {
                 g.setColor(Color.RED);
                 g.drawRect(5+j* CELL_SIZE*zoom, 5+(i%numberOfVerticalTiles)* CELL_SIZE*zoom,
@@ -106,5 +109,9 @@ public class T4PalettePanel extends JPanel {
         System.out.println("horiz tiles "+numberOfHorizontalTiles);
         setPreferredSize(new Dimension(CELL_SIZE*zoom*numberOfHorizontalTiles+10,
                 CELL_SIZE*zoom*(numberOfVerticalTiles+2)+20));
+    }
+
+    public void selectTile(int currentTile) {
+        this.selectedTile = currentTile;
     }
 }

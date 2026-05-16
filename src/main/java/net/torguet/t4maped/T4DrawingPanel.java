@@ -30,8 +30,8 @@ public class T4DrawingPanel extends JPanel {
     private final int[][] laby = new int[HEIGHT][WIDTH];
     private int largeurLaby = 0;
     private int hauteurLaby = 0;
-    private int couleurPair = 0;
-    private int couleurImpair = 0;
+    private int couleurPair = 1;
+    private int couleurImpair = 5;
     private final int[] quartTuiles = new int[MAX_FONT*4];
     private int nbQuartTuiles = 0;
     private final int[] tuiles = new int[MAX_FONT];
@@ -107,6 +107,8 @@ public class T4DrawingPanel extends JPanel {
             copiedEndI = -1;
             copiedEndJ = -1;
             modified = false;
+            couleurPair = 1;
+            couleurImpair = 5;
             firstUndo = lastUndo = currentUndo = null;
         }
         Arrays.fill(tuiles, 0);
@@ -895,17 +897,20 @@ _L00
         return nbQuartTuiles;
     }
 
-    public void addNewTile() {
+    public int addNewTile() {
         if (nbTuiles+4<MAX_FONT) {
+            int oldValue = nbTuiles;
             nbTuiles += 4;
             setModified(true);
             commentaireTuile[nbTuiles/4-1] = "";
+            return oldValue / 4;
         } else {
             JOptionPane.showMessageDialog(this,
                     "Too many tiles",
                     "Too many tiles error",
                     JOptionPane.ERROR_MESSAGE);
         }
+        return -1;
     }
 
     public int newSubtile() {
