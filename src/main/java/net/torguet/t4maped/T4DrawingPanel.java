@@ -38,8 +38,6 @@ public class T4DrawingPanel extends JPanel {
     private final String[] commentaireTuile = new String[MAX_FONT];
     private int nbTuiles = 0;
 
-    private int currentValue = 1;
-
     private int readingIndex = 0;
     private boolean readingColors = false;
     private boolean readingQuartTuiles = false;
@@ -333,30 +331,35 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
                 selectStartI = selectEndI = i;
                 selectStartJ = selectEndJ = j;
             } else {
-                UndoCell newCell = new UndoCell(laby[i][j], currentValue, i, j);
-                if (firstUndo == null) {
-                    currentUndo = lastUndo = firstUndo = newCell;
-                } else {
-                    lastUndo.setNextCell(newCell);
-                    newCell.setPreviousCell(lastUndo);
-                    currentUndo = lastUndo = newCell;
-                }
-
-                laby[i][j] = currentValue;
-
-                modified = true;
-
-                if (i+1 > hauteurLaby) {
-                    newCell.expandHeight(i+1, hauteurLaby);
-                    hauteurLaby = i+1;
-                }
-                if (j+1 > largeurLaby) {
-                    newCell.expandWidth(j+1, largeurLaby);
-                    largeurLaby = j+1;
-                }
+                pasteTile(i, j);
             }
         }
         repaint();
+    }
+
+    private void pasteTile(int i, int j) {
+        int currentValue = 1;
+        UndoCell newCell = new UndoCell(laby[i][j], currentValue, i, j);
+        if (firstUndo == null) {
+            currentUndo = lastUndo = firstUndo = newCell;
+        } else {
+            lastUndo.setNextCell(newCell);
+            newCell.setPreviousCell(lastUndo);
+            currentUndo = lastUndo = newCell;
+        }
+
+        laby[i][j] = currentValue;
+
+        modified = true;
+
+        if (i +1 > hauteurLaby) {
+            newCell.expandHeight(i +1, hauteurLaby);
+            hauteurLaby = i +1;
+        }
+        if (j +1 > largeurLaby) {
+            newCell.expandWidth(j +1, largeurLaby);
+            largeurLaby = j +1;
+        }
     }
 
     public void selectMode() {
@@ -412,8 +415,14 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
     }
 
     public void paste() {
-        if (copiedEndJ-copiedStartJ<selectEndJ-selectStartJ ||
-            copiedEndI-copiedStartI<selectEndI-selectStartI)
+        if (copiedEndJ-copiedStartJ == 0 && copiedEndI-copiedStartI == 0) {
+            // only one tile copied
+            // can paste on any zone
+            pasteValueOnZone();
+            modified = true;
+            repaint();
+        } else if (copiedEndJ-copiedStartJ<selectEndJ-selectStartJ ||
+                    copiedEndI-copiedStartI<selectEndI-selectStartI)
         {
             JOptionPane.showMessageDialog(this,
                     "The destination region should be smaller or equal to the copied region of size : ("+
@@ -421,22 +430,42 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
                     "Region Error",
                     JOptionPane.ERROR_MESSAGE);
         } else {
-            RegionUndoCell newCell = new RegionUndoCell(selectStartI, selectStartJ, selectEndI, selectEndJ, laby, copiedValues);
-            if (firstUndo == null) {
-                currentUndo = lastUndo = firstUndo = newCell;
-            } else {
-                lastUndo.setNextCell(newCell);
-                newCell.setPreviousCell(lastUndo);
-                currentUndo = lastUndo = newCell;
-            }
-            newCell.redoLabyChanges(laby);
-            if (selectEndJ+1 > this.largeurLaby)
-                largeurLaby = selectEndJ+1;
-            if (selectEndI+1 > this.hauteurLaby)
-                hauteurLaby = selectEndI+1;
+            pasteValues();
             modified = true;
             repaint();
         }
+    }
+
+    private void pasteValueOnZone() {
+        RegionUndoCell newCell = new RegionUndoCell(selectStartI, selectStartJ, selectEndI, selectEndJ, laby, copiedValues[0][0]);
+        if (firstUndo == null) {
+            currentUndo = lastUndo = firstUndo = newCell;
+        } else {
+            lastUndo.setNextCell(newCell);
+            newCell.setPreviousCell(lastUndo);
+            currentUndo = lastUndo = newCell;
+        }
+        newCell.redoLabyChanges(laby);
+        if (selectEndJ+1 > this.largeurLaby)
+            largeurLaby = selectEndJ+1;
+        if (selectEndI+1 > this.hauteurLaby)
+            hauteurLaby = selectEndI+1;
+    }
+
+    private void pasteValues() {
+        RegionUndoCell newCell = new RegionUndoCell(selectStartI, selectStartJ, selectEndI, selectEndJ, laby, copiedValues);
+        if (firstUndo == null) {
+            currentUndo = lastUndo = firstUndo = newCell;
+        } else {
+            lastUndo.setNextCell(newCell);
+            newCell.setPreviousCell(lastUndo);
+            currentUndo = lastUndo = newCell;
+        }
+        newCell.redoLabyChanges(laby);
+        if (selectEndJ+1 > this.largeurLaby)
+            largeurLaby = selectEndJ+1;
+        if (selectEndI+1 > this.hauteurLaby)
+            hauteurLaby = selectEndI+1;
     }
 
 
@@ -483,8 +512,13 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
     }
 
     public void setCurrentValue(int currentValue) {
-        this.currentValue = currentValue;
-        this.selectMode = false;
+        //this.currentValue = currentValue;
+        //this.selectMode = false;
+        this.copiedValues[0][0] = currentValue;
+        this.copiedStartJ=0;
+        this.copiedStartI=0;
+        this.copiedEndI=0;
+        this.copiedEndJ=0;
     }
     
     public void saveLaby(String fileName, boolean onlyTiles) throws IOException {
@@ -881,20 +915,7 @@ _L00
         selectEndJ = largeurLaby;
 
         for (int[] laby1 : copiedValues) Arrays.fill(laby1, 0);
-
-        RegionUndoCell newCell = new RegionUndoCell(selectStartI, selectStartJ, selectEndI, selectEndJ, laby, copiedValues);
-        if (firstUndo == null) {
-            currentUndo = lastUndo = firstUndo = newCell;
-        } else {
-            lastUndo.setNextCell(newCell);
-            newCell.setPreviousCell(lastUndo);
-            currentUndo = lastUndo = newCell;
-        }
-        newCell.redoLabyChanges(laby);
-        if (selectEndJ + 1 > this.largeurLaby)
-            largeurLaby = selectEndJ + 1;
-        if (selectEndI + 1 > this.hauteurLaby)
-            hauteurLaby = selectEndI + 1;
+        pasteValues();
         repaint();
     }
 
@@ -973,5 +994,19 @@ _L00
 
     public void pasteZoneHelper() {
         pasteZoneHelperMode = true;
+    }
+
+    public void cut() {
+        copy();
+        RegionUndoCell newCell = new RegionUndoCell(selectStartI, selectStartJ, selectEndI, selectEndJ, laby);
+        if (firstUndo == null) {
+            currentUndo = lastUndo = firstUndo = newCell;
+        } else {
+            lastUndo.setNextCell(newCell);
+            newCell.setPreviousCell(lastUndo);
+            currentUndo = lastUndo = newCell;
+        }
+        newCell.redoLabyChanges(laby);
+        repaint();
     }
 }

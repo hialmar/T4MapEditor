@@ -2,6 +2,7 @@ package net.torguet.t4maped;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
+import java.awt.*;
 import java.awt.event.*;
 
 public class T4TileAssemblerFrame  extends JFrame {
@@ -63,6 +64,9 @@ public class T4TileAssemblerFrame  extends JFrame {
     }
 
     private void initComponents() {
+        int MASK =
+                Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+        
         JScrollPane jScrollPane2 = new JScrollPane();
         jScrollPane2.getVerticalScrollBar().setUnitIncrement(16);
 
@@ -111,7 +115,7 @@ public class T4TileAssemblerFrame  extends JFrame {
         jMenu1.add(jMenuItemLoad);
 
         KeyStroke keyStrokeToOpen
-                = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_O, MASK);
         jMenuItemLoad.setAccelerator(keyStrokeToOpen);
 
         jMenuItemSave.setText("Save");
@@ -119,7 +123,7 @@ public class T4TileAssemblerFrame  extends JFrame {
         jMenu1.add(jMenuItemSave);
 
         KeyStroke keyStrokeToSave
-                = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_S, MASK);
         jMenuItemSave.setAccelerator(keyStrokeToSave);
         
         jMenuBar1.add(jMenu1);
@@ -131,7 +135,7 @@ public class T4TileAssemblerFrame  extends JFrame {
         jMenu2.add(jMenuItemCopy);
 
         KeyStroke keyStrokeToCopy
-                = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_C, MASK);
         jMenuItemCopy.setAccelerator(keyStrokeToCopy);
 
         jMenuItemPaste.setText("Paste");
@@ -139,7 +143,7 @@ public class T4TileAssemblerFrame  extends JFrame {
         jMenu2.add(jMenuItemPaste);
 
         KeyStroke keyStrokeToPaste
-                = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_V, MASK);
         jMenuItemPaste.setAccelerator(keyStrokeToPaste);
 
         jMenuItemUndo.setText("Undo");
@@ -147,7 +151,7 @@ public class T4TileAssemblerFrame  extends JFrame {
         jMenu2.add(jMenuItemUndo);
 
         KeyStroke keyStrokeToUndo
-                = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_Z, MASK);
         jMenuItemUndo.setAccelerator(keyStrokeToUndo);
 
 
@@ -156,7 +160,7 @@ public class T4TileAssemblerFrame  extends JFrame {
         jMenu2.add(jMenuItemRedo);
 
         KeyStroke keyStrokeToRedo
-                = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_Z, MASK|KeyEvent.SHIFT_DOWN_MASK);
         jMenuItemRedo.setAccelerator(keyStrokeToRedo);
 
         jMenuBar1.add(jMenu2);

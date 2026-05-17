@@ -121,6 +121,9 @@ public class T4MainFrame extends JFrame {
 
     private void initComponents() {
 
+        int MASK =
+                Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx();
+
         jScrollPane2 = new JScrollPane();
         jScrollPane2.getVerticalScrollBar().setUnitIncrement(16);
         JMenuBar jMenuBar1 = new JMenuBar();
@@ -133,7 +136,7 @@ public class T4MainFrame extends JFrame {
         JMenuItem jMenuItemSave = new JMenuItem();
         JMenuItem jMenuItemQuit = new JMenuItem();
         JMenu jMenu2 = new JMenu();
-        JMenuItem jMenuItemSelect = new JMenuItem();
+        JMenuItem jMenuItemCut = new JMenuItem();
         JMenuItem jMenuItemCopy = new JMenuItem();
         JMenuItem jMenuItemPasteZone = new JMenuItem();
         JMenuItem jMenuItemPaste = new JMenuItem();
@@ -160,7 +163,7 @@ public class T4MainFrame extends JFrame {
         jMenu1.add(jMenuItemLoad);
 
         KeyStroke keyStrokeToOpen
-                = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_O, MASK);
         jMenuItemLoad.setAccelerator(keyStrokeToOpen);
 
         jMenuItemSave.setText("Save");
@@ -168,7 +171,7 @@ public class T4MainFrame extends JFrame {
         jMenu1.add(jMenuItemSave);
 
         KeyStroke keyStrokeToSave
-                = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_S, MASK);
         jMenuItemSave.setAccelerator(keyStrokeToSave);
 
         jMenuItemEvenColor.setText("Define Even Color");
@@ -184,35 +187,43 @@ public class T4MainFrame extends JFrame {
         jMenu1.add(jMenuItemQuit);
 
         KeyStroke keyStrokeToQuit
-                = KeyStroke.getKeyStroke(KeyEvent.VK_Q, KeyEvent.CTRL_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_Q, MASK);
         jMenuItemQuit.setAccelerator(keyStrokeToQuit);
 
         jMenuBar1.add(jMenu1);
 
         jMenu2.setText("Tiles");
 
-        jMenuItemSelect.setText("Select");
-        jMenuItemSelect.addActionListener(this::jMenuItemSelectActionPerformed);
-        jMenu2.add(jMenuItemSelect);
+        jMenuItemCut.setText("Cut");
+        jMenuItemCut.addActionListener(this::jMenuItemCutActionPerformed);
+        jMenu2.add(jMenuItemCut);
+
+        KeyStroke keyStrokeToCut
+                = KeyStroke.getKeyStroke(KeyEvent.VK_X, MASK);
+        jMenuItemCut.setAccelerator(keyStrokeToCut);
 
         jMenuItemCopy.setText("Copy");
         jMenuItemCopy.addActionListener(this::jMenuItemCopyActionPerformed);
         jMenu2.add(jMenuItemCopy);
 
         KeyStroke keyStrokeToCopy
-                = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_C, MASK);
         jMenuItemCopy.setAccelerator(keyStrokeToCopy);
 
         jMenuItemPasteZone.setText("Paste Zone Helper");
         jMenuItemPasteZone.addActionListener(this::jMenuItemPasteZoneHelperActionPerformed);
         jMenu2.add(jMenuItemPasteZone);
 
+        KeyStroke keyStrokeToPasteHelper
+                = KeyStroke.getKeyStroke(KeyEvent.VK_V, MASK | KeyEvent.SHIFT_DOWN_MASK);
+        jMenuItemPasteZone.setAccelerator(keyStrokeToPasteHelper);
+
         jMenuItemPaste.setText("Paste");
         jMenuItemPaste.addActionListener(this::jMenuItemPasteActionPerformed);
         jMenu2.add(jMenuItemPaste);
 
         KeyStroke keyStrokeToPaste
-                = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_V, MASK);
         jMenuItemPaste.setAccelerator(keyStrokeToPaste);
 
         jMenuItemUndo.setText("Undo");
@@ -220,7 +231,7 @@ public class T4MainFrame extends JFrame {
         jMenu2.add(jMenuItemUndo);
 
         KeyStroke keyStrokeToUndo
-                = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_Z, MASK);
         jMenuItemUndo.setAccelerator(keyStrokeToUndo);
 
 
@@ -229,7 +240,7 @@ public class T4MainFrame extends JFrame {
         jMenu2.add(jMenuItemRedo);
 
         KeyStroke keyStrokeToRedo
-                = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK|KeyEvent.SHIFT_DOWN_MASK);
+                = KeyStroke.getKeyStroke(KeyEvent.VK_Z, MASK|KeyEvent.SHIFT_DOWN_MASK);
         jMenuItemRedo.setAccelerator(keyStrokeToRedo);
 
         jMenuItemEmpty.setText("Empty the map/city");
@@ -347,8 +358,8 @@ public class T4MainFrame extends JFrame {
         panel.copy();
     }
 
-    private void jMenuItemSelectActionPerformed(ActionEvent evt) {
-        panel.selectMode();
+    private void jMenuItemCutActionPerformed(ActionEvent evt) {
+        panel.cut();
     }
 
     public void jMenuItemLoadActionPerformed(ActionEvent ignoredEvt, boolean onlyTiles) {//GEN-FIRST:event_jMenuItemLoadActionPerformed
