@@ -8,7 +8,9 @@ package net.torguet.t4maped;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.*;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,7 +21,7 @@ import java.util.logging.Logger;
  *
  * @author torguet
  */
-public class T4DrawingPanel extends JPanel {
+public class T4DrawingPanel extends JPanel implements ClipboardOwner {
 
     public static final int HEIGHT = 64;
     public static final int WIDTH = 64;
@@ -403,6 +405,11 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
 
 
     public void copy() {
+        this.copyToClipboard();
+
+        if (selectEndI==-1 && selectEndJ==-1)
+            return;
+
         for(int i = 0; i<selectEndI-selectStartI+1;i++) {
             if (selectEndJ - selectStartJ + 1 >= 0)
                 System.arraycopy(laby[selectStartI + i], selectStartJ, copiedValues[i], 0,
@@ -1009,4 +1016,64 @@ _L00
         newCell.redoLabyChanges(laby);
         repaint();
     }
+
+    public BufferedImage createImage() {
+        int w = this.getWidth();
+        int h = this.getHeight();
+        BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = bi.createGraphics();
+        this.paint(g);
+        g.dispose();
+        return bi;
+    }
+
+    public void copyToClipboard() {
+        BufferedImage i = createImage();
+        TransferableImage trans = new TransferableImage(i);
+        Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
+        c.setContents(trans, this);
+    }
+
+    @Override
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
+        System.out.println( "Lost Clipboard Ownership" );
+    }
+
+    private static class TransferableImage implements Transferable {
+
+        Image i;
+
+        public TransferableImage( Image i ) {
+            this.i = i;
+        }
+
+        public Object getTransferData( DataFlavor flavor )
+                throws UnsupportedFlavorException {
+            if ( flavor.equals( DataFlavor.imageFlavor ) && i != null ) {
+                return i;
+            }
+            else {
+                throw new UnsupportedFlavorException( flavor );
+            }
+        }
+
+        public DataFlavor[] getTransferDataFlavors() {
+            DataFlavor[] flavors = new DataFlavor[ 1 ];
+            flavors[ 0 ] = DataFlavor.imageFlavor;
+            return flavors;
+        }
+
+        public boolean isDataFlavorSupported( DataFlavor flavor ) {
+            DataFlavor[] flavors = getTransferDataFlavors();
+            for (DataFlavor dataFlavor : flavors) {
+                if (flavor.equals(dataFlavor)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
 }
+
+
