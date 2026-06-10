@@ -210,6 +210,11 @@ public class T4MainFrame extends JFrame {
                 = KeyStroke.getKeyStroke(KeyEvent.VK_C, MASK);
         jMenuItemCopy.setAccelerator(keyStrokeToCopy);
 
+        JMenuItem jMenuItemCopyImage = new JMenuItem();
+        jMenuItemCopyImage.setText("Copy Image to Clipboard");
+        jMenuItemCopyImage.addActionListener(this::jMenuItemCopyImageActionPerformed);
+        jMenu2.add(jMenuItemCopyImage);
+
         jMenuItemPasteZone.setText("Paste Zone Helper");
         jMenuItemPasteZone.addActionListener(this::jMenuItemPasteZoneHelperActionPerformed);
         jMenu2.add(jMenuItemPasteZone);
@@ -336,6 +341,10 @@ public class T4MainFrame extends JFrame {
         });
 
         pack();
+    }
+
+    private void jMenuItemCopyImageActionPerformed(ActionEvent actionEvent) {
+        panel.copyToClipboard();
     }
 
     private void jMenuItemPasteZoneHelperActionPerformed(ActionEvent actionEvent) {

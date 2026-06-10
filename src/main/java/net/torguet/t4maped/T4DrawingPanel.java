@@ -405,8 +405,6 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
 
 
     public void copy() {
-        this.copyToClipboard();
-
         if (selectEndI==-1 && selectEndJ==-1)
             return;
 
