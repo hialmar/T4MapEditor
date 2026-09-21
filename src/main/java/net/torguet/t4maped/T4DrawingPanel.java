@@ -394,7 +394,7 @@ NUMBER	STANDARD COLOR	INVERTED COLOR
         i = (evt.getY() -  4) / (CELL_SIZE*zoom);
         j = (evt.getX() -  4) / (CELL_SIZE*zoom);
         if(i>=0 && i < HEIGHT && j >=0 && j < WIDTH) {
-            this.setToolTipText(String.format("%d, %d:%d($%02x) %s",
+            this.setToolTipText(String.format("0x%02x, 0x%02x:%d($%02x) %s",
                     i, j, laby[i][j], laby[i][j], commentaireTuile[laby[i][j]]));
         }
     }
